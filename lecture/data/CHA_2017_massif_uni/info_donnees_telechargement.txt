@@ -1,0 +1,4 @@
+La couche provient du fichier géographique CHA_2017_massif_uni_L93 au format shp.
+Pour le téléchargement vous avez choisi le format shp et le système de référence spatiale RGF93 / Lambert 93 (EPSG:2154).
+Nous attirons votre attention sur le fait que le fichier de métadonnées qui peut être fourni dans le zip de téléchargement correspond au fichier géographique d'origine de la carte.
+Il est de votre ressort de mettre à jour ou compléter les métadonnées en particulier avec les informations décrites dans le présent document (format de fichier et projection).
