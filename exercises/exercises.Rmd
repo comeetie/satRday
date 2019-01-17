@@ -346,7 +346,7 @@ epci_31 <- epci_31 %>%
 
 
 ```{block, box.title = "2", box.body = list(fill = "white"), box.icon = "fa-star"}
-With the help of `cartography` package, make the following map which contains in a choropleth layer the variable *nb_rest_10000inhab* and in a proportional circle layer the variable *nb_of_rest*. Do the same thing with the `ggplot2` package.
+With the help of `cartography` package, make the following map which contains in a choropleth layer the variable *nb_rest_10000inhab* and in a proportional circle layer the variable *nb_of_rest*. If you prefer you may also try using the `ggplot2` package.
 ```
 
 
@@ -913,87 +913,6 @@ Would we have obtained the same smoothing for this department if we had kept the
 No. The borders would have been different. 
 ```
 
-
-# Exercise 4 : Cartogram
-```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
-Make a cartogram of department 31 at the level of intercommunalities in proportion to the number of restaurants (SIRENE data).
-```
-
-
-```{block, opts.label = "information"}
-Load the layer ‘epci_31.rds’ from previous exercises and the `cartogram` package. 
-```
-
-
-```{r, nm=TRUE, eval=FALSE, solution = TRUE}
-epci_31 <- readRDS("data/epci_31.rds")
-
-library(cartogram)
-library(sf)
-
-cartogramme <- cartogram_cont(epci_31, "nb_of_rest", itermax = 5, maxSizeError = 1)
-plot(st_geometry(cartogramme), col="lightblue")
-```
-
-#### {.tabset}
-
-##### Normal borders
-```{r, nm=TRUE, echo=FALSE}
-epci_31 <- readRDS("data/epci_31.rds")
-
-library(sf)
-plot(st_geometry(epci_31), col="lightblue")
-```
-
-##### Cartogram
-```{r, nm=TRUE, echo=FALSE}
-library(cartogram)
-cartogramme <- cartogram_cont(epci_31, "nb_of_rest", itermax = 5, maxSizeError = 1)
-plot(st_geometry(cartogramme), col="lightblue")
-```
-
-#### {}
-
-
-# Exercise 5 : Linemap
-```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
-Make a linemap of department 31 at the level of municipalities in proportion to the number of restaurants (SIRENE data).
-```
-
-```{block, opts.label = "information"}
-Load the map layer ‘com_31.rds’ from previous exercises and the `linemap` package. 
-```
-
-```{block, opts.label = "clues"}
-Use the two `getgrid` and` linemap` functions of this package.
-The following parameters work: `cellsize = 1750`, `k = 400` and `threshold = 0.01`.
-```
-
-
-```{r, nm=TRUE, eval=FALSE, solution = TRUE}
-com_31 <- readRDS("./data/com_31.rds")
-
-library(linemap)
-grid <- getgrid(x = com_31, cellsize = 1750, var = "nb_of_rest")
-plot(sf::st_geometry(com_31), col="ivory1", border = NA)
-opar <- par(mar=c(0,0,0,0), bg = "ivory2")
-linemap(x = grid, var = "nb_of_rest", k = 400, threshold = 0.01,
-        col = "ivory1", border = "ivory4", lwd = 0.6, add = TRUE)
-```
-
-```{r, nm=TRUE, echo=FALSE}
-com_31 <- readRDS("data/com_31.rds")
-
-library(linemap)
-grid <- getgrid(x = com_31, cellsize = 1750, var = "nb_of_rest")
-plot(sf::st_geometry(com_31), col="ivory1", border = NA)
-opar <- par(mar=c(0,0,0,0), bg = "ivory2")
-linemap(x = grid, var = "nb_of_rest", k = 400, threshold = 0.01,
-        col = "ivory1", border = "ivory4", lwd = 0.6, add = TRUE)
-
-
-library(dplyr) #because select is also in raster package and bugs if CACHE = TRUE
-```
 
 
 --------------------------------------------
