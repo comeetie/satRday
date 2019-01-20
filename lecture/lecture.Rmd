@@ -1,5 +1,5 @@
 ---
-title: "Geovisualization and Spatial Analysis"
+title: "**SatRday Paris** Spatial data and cartography"
 output:
   rmdformats::material:
     highlight: kate
@@ -204,10 +204,10 @@ Several solutions are available:
 - `ggplot2` users can have a look to `ggplot2` mapping features (geom_sf) that can mix nicely with `ggspatial`.  
 - For more advanced mapping features in a *ggplot2-like* syntax have a look to `tmap`
 - `cartography` is based on base graphics and allow most of basic and advanced cartographic representations.
-- `mapView`, `Leaflet` and `mapdeck` for interactive webmaps.
-<small><small>Full disclosure: one of the speakers is the maintainer of `cartography`.</small></small> 
+<br><small>Full disclosure: one of the speakers is the maintainer of `cartography`.</small>
+- `mapView`, `leaflet` and `mapdeck` for interactive webmaps.
 
-Here we will focus on `cartography` and do small examples with `ggplot2` and `mapview`.
+Here we will focus on `cartography` and do small examples with `ggplot2`, `leaflet` and `mapview`.
 
 ## `cartography` {.tabset}
 
@@ -254,7 +254,8 @@ roads.geom = st_intersection(st_geometry(roads),sm)
 # Get the shape of the main river "La seine" 
 qr    <- add_osm_feature (q, key = 'waterway')
 river <- osmdata_sf(qr)
-river.geom <- st_geometry(river$osm_lines %>% filter(name.fr=="La Seine")) %>% st_transform(st_crs(sm))
+river.geom <- st_geometry(river$osm_lines %>% filter(name.fr=="La Seine")) %>%
+  st_transform(st_crs(sm))
 ```
 
 
@@ -290,7 +291,8 @@ barscale(size = 10)
 north(pos = "topright", col = "darkblue")
 # Full layout
 layoutLayer(title = "Workforce in Seine-Maritime", 
-            sources = "Insee, 2018, OpenStreetMap contributors", author = "Kim, Tim & Comeetie, 2018", 
+            sources = "Insee, 2018, OpenStreetMap contributors",
+            author = "Kim, Tim & Comeetie, 2018", 
             col = "darkblue", coltitle = "white", tabtitle = TRUE, 
             frame = TRUE, scale = NULL, north = FALSE)
 ```
@@ -325,7 +327,8 @@ legendTypo(title.txt = "Dominant Socio-Professional\nCategory",
 barscale(size = 10)
 north(pos = "topright", col = "darkblue")
 layoutLayer(title = "Workforce Distribution in Seine-Maritime", 
-            sources = "Insee, 2018, OpenStreetMap contributors", author = "Kim, Tim & Comeetie, 2018", 
+            sources = "Insee, 2018, OpenStreetMap contributors",
+            author = "Kim, Tim & Comeetie, 2018", 
             col = "darkblue", coltitle = "white", tabtitle = TRUE,
             frame = TRUE, scale = NULL, north = FALSE)
 
@@ -360,7 +363,8 @@ plot(st_geometry(roads.geom),col="#666666",lwd = 1.2,add=TRUE)
 labelLayer(labels,txt="LIBELLE",halo=TRUE,col="white",bg="black",cex=1) 
 # Add a layout
 layoutLayer(title = "Managers", 
-            sources = "Insee, 2018, OpenStreetMap contributors", author = "Kim, Tim & Comeetie, 2018", 
+            sources = "Insee, 2018, OpenStreetMap contributors",
+            author = "Kim, Tim & Comeetie, 2018", 
             theme = "green.pal", 
             col = "darkred", coltitle = "white", 
             tabtitle = TRUE, 
@@ -384,10 +388,12 @@ choroLayer(sm_c1, var = "pcad", breaks = bks,
            lwd = 0.4, legend.pos = "topleft", 
            legend.title.txt = "Share of managers (%)", add=T)
 # functions are dedicated to legend display
-labelLayer(sm_c1 %>% filter(LIBELLE%in% cities),txt="LIBELLE",halo=TRUE,col="white",bg="black",cex=1) 
+labelLayer(sm_c1 %>% filter(LIBELLE %in% cities), txt="LIBELLE", halo=TRUE, col="white",
+           bg="black", cex=1) 
 # Add a layout
 layoutLayer(title = "Managers", 
-            sources = "Insee, 2018", author = "Kim, Tim & Comeetie, 2018", 
+            sources = "Insee, 2018",
+            author = "Kim, Tim & Comeetie, 2018", 
             theme = "green.pal", 
             col = "darkred", coltitle = "white", 
             tabtitle = TRUE, 
@@ -417,7 +423,8 @@ plot(st_geometry(roads.geom),col="#666666",lwd = 1.2,add=TRUE)
 # functions are dedicated to legend display
 labelLayer(labels,txt="LIBELLE",halo=TRUE,col="white",bg="black",cex=1) 
 layoutLayer(title = "Managers", 
-            sources = "Insee, 2018, OpenStreetMap contributors", author = "Kim, Tim & Comeetie, 2018", 
+            sources = "Insee, 2018, OpenStreetMap contributors",
+            author = "Kim, Tim & Comeetie, 2018", 
             theme = "green.pal", 
             col = "darkred", coltitle = "white", 
             tabtitle = TRUE,
@@ -447,7 +454,8 @@ plot(st_geometry(roads.geom),col="#666666",lwd = 1.2,add=TRUE)
 # functions are dedicated to legend display
 labelLayer(labels,txt="LIBELLE",halo=TRUE,col="white",bg="black",cex=1) 
 layoutLayer(title = "Managers", 
-            sources = "Insee, 2018, OpenStreetMap contributors", author = "Kim, Tim & Comeetie, 2018", 
+            sources = "Insee, 2018, OpenStreetMap contributors",
+            author = "Kim, Tim & Comeetie, 2018", 
             theme = "green.pal", 
             col = "darkred", coltitle = "white", 
             tabtitle = TRUE,
@@ -461,12 +469,12 @@ north(pos = "topright")
 
 ### Smoothed Map
 
-`smoothLayer()` uses functions from package [`SpatialPosition`](https://CRAN.R-project.org/package=SpatialPosition) to computes 
+`smoothLayer()` uses functions from package [`SpatialPosition`](https://CRAN.R-project.org/package=SpatialPosition) to compute 
 Stewart's potentials of population.  
 The computation of potentials could be considered as a **spatial interpolation method** 
 such as inverse distance weighted interpolation (IDW) or kernel density estimator. 
 These models aim to estimate unknown values of non-observed points from known 
-values given by measure points. Cartographically speaking, they are often used 
+values given by measured points. Cartographically speaking, they are often used 
 to get a continuous surface from a set of discrete points. However, Stewart model 
 is mainly a spatial interaction modeling approach, with a possible secondary use for spatial interpolation.  
 
@@ -487,7 +495,8 @@ plot(st_geometry(roads.geom),col="#666666",lwd = 1.2,add=TRUE)
 # functions are dedicated to legend display
 labelLayer(labels,txt="LIBELLE",halo=TRUE,col="white",bg="black",cex=1) 
 layoutLayer(title = "Managers", 
-            sources = "Insee, 2018, OpenStreetMap contributors", author = "Kim, Tim & Comeetie, 2018", 
+            sources = "Insee, 2018, OpenStreetMap contributors",
+            author = "Kim, Tim & Comeetie, 2018", 
             theme = "green.pal", 
             col = "darkred", coltitle = "white", 
             postitle = "center",
@@ -557,10 +566,10 @@ ggplot() +
 ```
 
 
-## `mapView` and `Leaflet` {.tabset}
+## `mapView` and `leaflet` {.tabset}
 
 ### Proportional symbols layer
-These maps, as appealing as they seem to be, are not really suitable for presenting geostatistical information. For porportional symbol both librairies lack a proper way to build lengends. Nonetheless, they can be really useful for exploratory data analysis. Both librairies are quite similar with some advantage for mapview (e.g possibility to render to canvas for bigger datasets) and some other for leaflet (e.g using custom projection different from web-meractor)
+These interactive maps, as appealing as they seem to be, are not really suitable for presenting geostatistical information. For porportional symbols both `leaflet` and `mapView` lack a proper way to build lengends. Nonetheless, they can be really useful for exploratory data analysis. Both librairies are quite similar with some advantage for `mapView` (e.g the possibility to render to canvas for bigger datasets) and some other for `leaflet` (e.g using a customized projection different from web-meractor)
 
 ```{r}
 library(mapview)
@@ -568,33 +577,41 @@ library(mapview)
 actifs = sm %>% st_centroid() %>% mutate(radius = sqrt(act)) %>% arrange(desc(act))
 # build a map by providing a map tile provider and some options for the circles.
 # with mapview the circle size will stay constant whatever the zoom level is.
-mapview(actifs,map.types = "Stamen.TonerLite",cex="radius",legend=FALSE,col.regions="#217844",lwd=0,alpha=0.4)
+mapview(actifs, map.types = "Stamen.TonerLite", cex="radius", legend=FALSE,
+        col.regions="#217844", lwd=0, alpha=0.4)
 ```
 
-With leaflet the data must be provided in long/lat(st_transform(4326) and will be converted to the coordinate reference system of the map webmercator by default. You may chose between circle with radius specied in meter (addCircle) or pixel (addCircleMarkers) if specified in pixel the radius will stay the same whatever the zoom level is, if specified in meter it will evolve with zoom level.
+
+With `leaflet` data must be provided in long/lat (st_transform(4326)) and will be converted by default to the webmercator coordinate reference system (CRS). You may choose between circles with radius specified in meters (addCircle) or in pixels (addCircleMarkers). If specified in pixel, the radius will stay the same whatever the zoom level is. If specified in meters, it will evolve with zoom level.
+
 
 ```{r}
 library(leaflet)
 leaflet(actifs %>% st_transform(4326)) %>% addProviderTiles(providers$Stamen.TonerLite) %>%
-  addCircles(radius = ~radius * 30, popup = ~paste0(LIBELLE," : ",act,"actifs"), fillColor="#217844",stroke=FALSE,fillOpacity=0.4)
+  addCircles(radius = ~radius * 30, popup = ~paste0(LIBELLE," : ",act,"actifs"),
+             fillColor = "#217844", stroke = FALSE, fillOpacity = 0.4)
 ```
 
 
 ### Gridded Map
-Mapview and leaflet, enable the use and styling of psf olygons and we may for example re-use the grid build previously to show the share of seine et maritime.
-Default choropleth can be obtain with just three argument with mapview. 
+`mapView` and `leaflet` enable the use and styling of sf polygons. We may for example reuse the grid built previously to show the share of managers in Seine-Maritime.
+Default choropleth can be obtained with just three arguments with `mapView`. 
 ```{r}
 mapview(grid,map.types = "Stamen.TonerLite",zcol="pcad")
 ```
 
-Leaflet enable fine tuning of the color scale and legend.
+
+`leaflet` enables fine tuning of the color scale and legend.
+
+
 ```{r}
 # define a color scale function from colors and breaks
-color.scale=colorBin(cols,domain=range(bks),bins=bks)
+color.scale <- colorBin(cols, domain = range(bks), bins=bks)
 
 leaflet(grid  %>% st_transform(4326)) %>% addProviderTiles(providers$Stamen.TonerLite) %>%
-  addPolygons( fillColor=~color.scale(pcad),stroke=FALSE,fillOpacity=0.7) %>% 
-  addLegend(colors=cols,labels=round(bks[1:(length(bks)-1)]*10)/10,title="Share of Manager (%)")
+  addPolygons(fillColor = ~color.scale(pcad), stroke = FALSE, fillOpacity = 0.7) %>% 
+  addLegend(colors = cols, labels = round(bks[1:(length(bks)-1)]*10)/10,
+            title = "Share of Manager (%)")
   
 ```
 
@@ -603,21 +620,32 @@ leaflet(grid  %>% st_transform(4326)) %>% addProviderTiles(providers$Stamen.Tone
 
 ### Projection
 
-Eventually, leaflet enable some move outside web-mercator the clasical projection for webmap. You may deal with tiles build in other projection system such as lamber 93 by defining a custom leaflet crs (see gis.stackexchange [resolution-from-wmts-getcapacilities-scaledenomin](https://gis.stackexchange.com/questions/153640/proj4leaflet-create-crs-scales-resolution-from-wmts-getcapacilities-scaledenomin) and [mathematics-behind-converting-scale-to-resolution](https://gis.stackexchange.com/questions/153640/proj4leaflet-create-crs-scales-resolution-from-wmts-getcapacilities-scaledenomin) to deal with WMTS tiles). We use such an approach here to deal with Hypsometric tints tiles (tiles colors encode  elevation) and contour of chamois and ibex population area provided provided by the [french national office of hunting and wild animals](http://www.oncfs.gouv.fr/Cartographie-ru4/Le-portail-cartographique-de-donnees-ar291).
+`leaflet` enables to use other projections than the web-mercator projection for webmaps. You may deal with tiles built with another projection system such as Lambert 93 by defining a custom leaflet crs (see gis.stackexchange [resolution-from-wmts-getcapacilities-scaledenomin](https://gis.stackexchange.com/questions/153640/proj4leaflet-create-crs-scales-resolution-from-wmts-getcapacilities-scaledenomin) and [mathematics-behind-converting-scale-to-resolution](https://gis.stackexchange.com/questions/153640/proj4leaflet-create-crs-scales-resolution-from-wmts-getcapacilities-scaledenomin) to deal with WMTS tiles). We use this approach here to deal with Hypsometric tints tiles (tiles colors which encode elevation) and the contour lines of chamois and ibex population area provided by the [french national office of hunting and wild animals](http://www.oncfs.gouv.fr/Cartographie-ru4/Le-portail-cartographique-de-donnees-ar291).
+
 
 ```{r}
 library(leaflet)
 library(sf)
 epsg2154 <- leafletCRS(crsClass = "L.Proj.CRS", code = "EPSG:2154",
-                       proj4def = "+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs",
+                       proj4def = "+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3
+                       +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0
+                       +units=m +no_defs",
                        resolution = 4838095.23807/cumprod(c(1,rep(2,15)))*0.00028,
                        origin= c(-357823.2365,7230727.3772)
 )
 
-tile_ortho = "http://tiles.craig.fr/ortho/service?service=WMTS&request=GetTile&version=1.0.0&layer=ortho_2016&style=normal&tilematrixset=lambert93&format=image%2Fjpeg&tilematrix={z}&tilerow={y}&tilecol={x}"
-tile_mnt = "http://tiles.craig.fr/mnt/service?service=WMTS&request=GetTile&version=1.0.0&layer=relief&style=default&tilematrixset=lambert93&format=image%2Fpng&tilematrix={z}&tilerow={y}&tilecol={x}"
+tile_ortho <- "http://tiles.craig.fr/ortho/service?service=WMTS&request=GetTile&version=1.0.0&
+layer=ortho_2016&style=normal&tilematrixset=lambert93&format=image%2Fjpeg&tilematrix={z}
+&tilerow={y}&tilecol={x}"
 
-tile_attrib <- "Map data &copy; <a href='https://www.craig.fr/contenu/1377-flux-tuile-wmswmtstms'> craig / IGN </a> and <a href='http://www.oncfs.gouv.fr/Cartographie-ru4/Le-portail-cartographique-de-donnees-ar291'>ONCF</a>"
+tile_mnt <- "http://tiles.craig.fr/mnt/service?service=WMTS&request=GetTile&version=1.0.0&
+layer=relief&style=default&tilematrixset=lambert93&format=image%2Fpng&tilematrix={z}&
+tilerow={y}&tilecol={x}"
+
+tile_attrib <- "Map data &copy;
+<a href='https://www.craig.fr/contenu/1377-flux-tuile-wmswmtstms'> craig / IGN </a>
+and <a href='http://www.oncfs.gouv.fr/Cartographie-ru4/Le-portail-
+cartographique-de-donnees-ar291'>ONCF</a>"
 
 bouq = read_sf("./data/BOQ_2017_massif_uni/BOQ_2017_massif_uni_L93.shp")
 cha = read_sf("./data/CHA_2017_massif_uni/CHA_2017_massif_uni_L93.shp")
@@ -625,8 +653,10 @@ cha = read_sf("./data/CHA_2017_massif_uni/CHA_2017_massif_uni_L93.shp")
 leaflet(options = leafletOptions(worldCopyJump = F, crs = epsg2154)) %>%
  # addTiles(urlTemplate = tile_ortho,attribution = tile_attrib) %>% 
   addTiles(urlTemplate = tile_mnt,attribution = tile_attrib) %>% 
-  addPolygons(data=bouq %>% st_transform(4326),fillColor='#50162D',color='#772A7F',fillOpacity=0.05,opacity = 1,weight=2.5,dashArray = "3") %>% 
-  addPolygons(data=cha %>% st_transform(4326),fillColor='#88AA00',color='#CCFF00',fillOpacity=0.05,opacity = 1,weight=2.5,dashArray = "3") %>% 
+  addPolygons(data = bouq %>% st_transform(4326), fillColor = '#50162D',color = '#772A7F',
+              fillOpacity = 0.05,opacity = 1, weight = 2.5, dashArray = "3") %>% 
+  addPolygons(data = cha %>% st_transform(4326), fillColor = '#88AA00',color = '#CCFF00',
+              fillOpacity = 0.05,opacity = 1, weight=2.5, dashArray = "3") %>% 
   setView(2.692174, 45.067230, 4)
 
 ```
