@@ -239,7 +239,7 @@ labels = sm %>% filter(LIBELLE %in% cities)
 library(osmdata)
 # Get major roads from osm
 bb      <- sm %>% st_transform(4326) %>% st_bbox()
-q       <- opq(bbox = bb)
+q       <- opq(bbox = bb,timeout = 180)
 qm      <- add_osm_feature (q, key = 'highway',value = 'motorway',value_exact = FALSE)
 qt      <- add_osm_feature (q, key = 'highway',value = 'trunk',value_exact = FALSE)
 qp      <- add_osm_feature (q, key = 'highway',value = 'primary',value_exact = FALSE)
@@ -252,7 +252,7 @@ roads    <- c(primary,trunk,motorway)$osm_lines %>% st_transform(st_crs(sm))
 roads.geom = st_intersection(st_geometry(roads),sm) 
 
 # Get the shape of the main river "La seine" 
-qr    <- add_osm_feature (q, key = 'waterway')
+qr    <- q %>% add_osm_feature (key = 'waterway') %>% add_osm_feature(key="name:fr",value="La Seine")
 river <- osmdata_sf(qr)
 river.geom <- st_geometry(river$osm_lines %>% filter(name.fr=="La Seine")) %>%
   st_transform(st_crs(sm))
@@ -527,11 +527,17 @@ The [cheat sheet](http://riatelab.github.io/cartography/vignettes/cheatsheet/car
 ```{r, fig.height=4.75}
 library(ggplot2)
 
+labgg = labels %>% st_centroid() 
+labgg$x = st_coordinates(labgg)[,1]
+labgg$y = st_coordinates(labgg)[,2]
+
 ggplot() +
   geom_sf(data = dep, colour = "ivory3",fill = "ivory") +
+  geom_sf(data = river.geom, colour = "azure",size=2) +
+  geom_sf(data = roads.geom, colour = "#666666",size=0.5) +
   geom_sf(data = sm %>%  st_centroid(),
-          
           aes(size= act), colour="#E84923CC", show.legend = 'point') +
+  geom_text(data=labgg,aes(x=x,y=y,label=LIBELLE))+
   scale_size(name = "Active population",
              breaks = c(100,1000,10000),
              range = c(0,20)) +
@@ -542,7 +548,7 @@ ggplot() +
   theme_minimal() +
   theme(panel.background = element_rect(fill = "azure",color=NA)) +
   labs(title = "Active population",
-       caption = "Insee, 2018\nKim & Tim, 2018")
+       caption = "Insee, 2018\nKim & Tim, 2018",x="",y="")
 ```
 
 ### Choropleth layer
@@ -551,8 +557,11 @@ ggplot() +
 ggplot() +
   geom_sf(data = dep, colour = "ivory3",fill = "ivory") +
   geom_sf(data = sm, aes(fill = pcad), colour = "grey80") +
+  geom_sf(data = river.geom, colour = "azure",size=2) +
+  geom_sf(data = roads.geom, colour = "#666666",size=0.5) +
+  geom_text(data=labgg,aes(x=x,y=y,label=LIBELLE))+
   scale_fill_gradientn(name = "Share of managers (%)",
-                       
+            
                        colours = carto.pal("green.pal", 3,"wine.pal",3),
                        values=bks/max(bks))+
   coord_sf(crs = 2154, datum = NA,
@@ -562,7 +571,7 @@ ggplot() +
   theme_minimal() +
   theme(panel.background = element_rect(fill = "azure",color=NA)) +
   labs(title = "Managers",
-       caption = "Insee, 2018\nKim & Tim, 2018")
+       caption = "Insee, 2018\nKim & Tim, 2018",x="",y="")
 ```
 
 
