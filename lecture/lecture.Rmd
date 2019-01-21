@@ -606,8 +606,6 @@ leaflet(grid  %>% st_transform(4326)) %>% addProviderTiles(providers$Stamen.Tone
 Eventually, leaflet enable some move outside web-mercator the clasical projection for webmap. You may deal with tiles build in other projection system such as lamber 93 by defining a custom leaflet crs (see gis.stackexchange [resolution-from-wmts-getcapacilities-scaledenomin](https://gis.stackexchange.com/questions/153640/proj4leaflet-create-crs-scales-resolution-from-wmts-getcapacilities-scaledenomin) and [mathematics-behind-converting-scale-to-resolution](https://gis.stackexchange.com/questions/153640/proj4leaflet-create-crs-scales-resolution-from-wmts-getcapacilities-scaledenomin) to deal with WMTS tiles). We use such an approach here to deal with Hypsometric tints tiles (tiles colors encode  elevation) and contour of chamois and ibex population area provided provided by the [french national office of hunting and wild animals](http://www.oncfs.gouv.fr/Cartographie-ru4/Le-portail-cartographique-de-donnees-ar291).
 
 ```{r}
-library(leaflet)
-library(sf)
 epsg2154 <- leafletCRS(crsClass = "L.Proj.CRS", code = "EPSG:2154",
                        proj4def = "+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs",
                        resolution = 4838095.23807/cumprod(c(1,rep(2,15)))*0.00028,
