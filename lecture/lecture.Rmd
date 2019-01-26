@@ -1,5 +1,7 @@
 ---
-title: "**SatRday Paris** Spatial data and cartography"
+title: "**Spatial data and cartography with R**"
+author: "Kim A. Etienne C. Timothée G."
+date: "**SatRday Paris** February 2019"
 output:
   rmdformats::material:
     highlight: kate
@@ -42,7 +44,8 @@ knit_hooks$set(sm = function(before, options, envir){
   } 
 })
 
-
+#Install the github version for date and author
+#devtools::install_github("juba/rmdformats")
 ```
 
 # The R Spatial Ecosystem {.tabset}
@@ -205,9 +208,9 @@ Several solutions are available:
 - For more advanced mapping features in a *ggplot2-like* syntax have a look to `tmap`
 - `cartography` is based on base graphics and allow most of basic and advanced cartographic representations.
 <br><small>Full disclosure: one of the speakers is the maintainer of `cartography`.</small>
-- `mapView`, `leaflet` and `mapdeck` for interactive webmaps.
+- `mapview`, `leaflet` and `mapdeck` for interactive webmaps.
 
-Here we will focus on `cartography` and do small examples with `ggplot2`, `leaflet` and `mapview`.
+Here we will focus on `cartography` and do small examples with `ggplot2`, `tmap`, `leaflet` and `mapview`.
 
 ## `cartography` {.tabset}
 
@@ -520,9 +523,11 @@ The [cheat sheet](http://riatelab.github.io/cartography/vignettes/cheatsheet/car
 
 
 
-## `ggplot2` {.tabset}
+## `ggplot2` and `tmap` {.tabset}
 
-### Proportional symbols layer
+### `ggplot2`
+
+Proportional symbols layer
 
 ```{r, fig.height=4.75}
 library(ggplot2)
@@ -551,7 +556,7 @@ ggplot() +
        caption = "Insee, 2018\nKim & Tim, 2018",x="",y="")
 ```
 
-### Choropleth layer
+Choropleth layer
 
 ```{r, fig.height=4.75}
 ggplot() +
@@ -574,11 +579,15 @@ ggplot() +
        caption = "Insee, 2018\nKim & Tim, 2018",x="",y="")
 ```
 
+### `tmap`
 
-## `mapView` and `leaflet` {.tabset}
+TODO Timothée
+
+
+## `mapview` and `leaflet` {.tabset}
 
 ### Proportional symbols layer
-These interactive maps, as appealing as they seem to be, are not really suitable for presenting geostatistical information. For porportional symbols both `leaflet` and `mapView` lack a proper way to build lengends. Nonetheless, they can be really useful for exploratory data analysis. Both librairies are quite similar with some advantage for `mapView` (e.g the possibility to render to canvas for bigger datasets) and some other for `leaflet` (e.g using a customized projection different from web-meractor)
+These interactive maps, as appealing as they seem to be, are not really suitable for presenting geostatistical information. For porportional symbols both `leaflet` and `mapview` lack a proper way to build lengends. Nonetheless, they can be really useful for exploratory data analysis. Both librairies are quite similar with some advantage for `mapview` (e.g the possibility to render to canvas for bigger datasets) and some other for `leaflet` (e.g using a customized projection different from web-meractor)
 
 ```{r}
 library(mapview)
@@ -603,8 +612,8 @@ leaflet(actifs %>% st_transform(4326)) %>% addProviderTiles(providers$Stamen.Ton
 
 
 ### Gridded Map
-`mapView` and `leaflet` enable the use and styling of sf polygons. We may for example reuse the grid built previously to show the share of managers in Seine-Maritime.
-Default choropleth can be obtained with just three arguments with `mapView`. 
+`mapview` and `leaflet` enable the use and styling of sf polygons. We may for example reuse the grid built previously to show the share of managers in Seine-Maritime.
+Default choropleth can be obtained with just three arguments with `mapview`. 
 ```{r}
 mapview(grid,map.types = "Stamen.TonerLite",zcol="pcad")
 ```
