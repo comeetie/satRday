@@ -4,9 +4,6 @@ rmdformats
 sf
 dplyr
 bindrcpp
-osmdata
 cartography
 cartogram
 SpatialPosition
-sp
-raster
