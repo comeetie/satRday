@@ -89,7 +89,7 @@ mtq <- st_read("data/mtq/martinique.shp")
 ```
 
 ### Projection {.tabset}
-Get current crs with [epsg code](https://epsg.io/) and change projection with st_transform.
+Get current crs with [epsg code](https://epsg.io/) and change projection with `st_transform()`.
 
 ```{r}
 st_crs(mtq)
@@ -98,7 +98,7 @@ mtq_4326 <- mtq %>% st_transform(4326)
 
 
 ### Data Display
-Default
+Default plot
 ```{r, nm=TRUE}
 plot(mtq)
 ```
@@ -212,7 +212,6 @@ Several solutions are available:
 
 Here we will focus on `cartography` and do small examples with `ggplot2`, `tmap`, `leaflet` and `mapview`.
 
-## `cartography` {.tabset}
 
 ### Data Preparation
 
@@ -221,31 +220,42 @@ library(sf)
 library(dplyr)
 # Import geo layers
 ## Communes of Seine Maritime
-sm <- st_read(dsn = "data/dep76/seine_maritime.geojson", stringsAsFactors = F, quiet=TRUE)
+sm <- st_read(dsn = "data/dep76/seine_maritime.geojson", 
+              stringsAsFactors = FALSE, quiet=TRUE)
 ## French departements
-dep <- st_read(dsn = "data/dep76/dep.geojson", stringsAsFactors = F, quiet=TRUE)
+dep <- st_read(dsn = "data/dep76/dep.geojson", 
+               stringsAsFactors = FALSE, quiet=TRUE)
 
 # change projection (lambert93)
 sm <- st_transform(sm, 2154)
 dep <- st_transform(dep, 2154)
 
+```
+
+
+```{r, eval=TRUE,cache=TRUE}
 # Import dataset  
 csp <- read.csv("data/dep76/data_seine_maritime.csv")
 # merge geolayer and dataset
 sm <- merge(sm, csp, by="INSEE_COM", all.x=TRUE)
+head(sm)
+```
 
-# Prepare some additional contextual informations
+
+
+```{r, eval=TRUE,cache=TRUE}
 # Extract label of main cities
 cities = c("Rouen","Fécamp","Le Havre","Dieppe","Le Tréport")
 labels = sm %>% filter(LIBELLE %in% cities)
-
+```
+```{r, eval=FALSE,cache=TRUE}
 library(osmdata)
 # Get major roads from osm
 bb      <- sm %>% st_transform(4326) %>% st_bbox()
 q       <- opq(bbox = bb,timeout = 180)
-qm      <- add_osm_feature (q, key = 'highway',value = 'motorway',value_exact = FALSE)
-qt      <- add_osm_feature (q, key = 'highway',value = 'trunk',value_exact = FALSE)
-qp      <- add_osm_feature (q, key = 'highway',value = 'primary',value_exact = FALSE)
+qm      <- add_osm_feature (q, key = 'highway',value = 'motorway', value_exact = FALSE)
+qt      <- add_osm_feature (q, key = 'highway',value = 'trunk', value_exact = FALSE)
+qp      <- add_osm_feature (q, key = 'highway',value = 'primary', value_exact = FALSE)
 
 motorway<- osmdata_sf(qm)
 trunk   <- osmdata_sf(qt)
@@ -255,14 +265,38 @@ roads    <- c(primary,trunk,motorway)$osm_lines %>% st_transform(st_crs(sm))
 roads.geom = st_intersection(st_geometry(roads),sm) 
 
 # Get the shape of the main river "La seine" 
-qr    <- q %>% add_osm_feature (key = 'waterway') %>% add_osm_feature(key="name:fr",value="La Seine")
+qr <- q %>% 
+  add_osm_feature (key = 'waterway') %>% 
+  add_osm_feature(key = "name:fr", value = "La Seine")
 river <- osmdata_sf(qr)
-river.geom <- st_geometry(river$osm_lines %>% filter(name.fr=="La Seine")) %>%
+river.geom <- st_geometry(river$osm_lines %>% filter(name.fr == "La Seine")) %>%
   st_transform(st_crs(sm))
+
+# Export road and river layers to shapefile
+st_write(roads.geom, dsn = "data/dep76/road.shp")
+st_write(river.geom, dsn = "data/dep76/river.shp")
+```
+```{r , echo = FALSE}
+roads.geom <- st_read(dsn = "data/dep76/road.shp", quiet = TRUE)
+river.geom <- st_read(dsn = "data/dep76/river.shp", quiet = TRUE)
+```
+```{r, eval=TRUE,cache=TRUE, fig.height=4.75}
+bb <- st_bbox(sm)
+# the bbox is used to center the map on the Seine Maritime depatement
+par(mar=c(0.2,0.2,1.4,0.2), bg="azure")
+plot(st_geometry(dep), col = "ivory", border="ivory3", 
+     xlim = bb[c(1,3)], ylim =  bb[c(2,4)])
+plot(st_geometry(sm), col="cornsilk2", border = NA, lwd = 0.5, add=T)
+plot(st_geometry(roads.geom),col="#666666",lwd = 1.2,add=TRUE)
+plot(st_geometry(river.geom),col="azure",lwd = 3,add=TRUE)
+
 ```
 
+## `cartography` {.tabset}
 
 ### Proportional symbols
+
+
 ```{r}
 # (Very) simple map
 library(cartography)
@@ -287,7 +321,7 @@ propSymbolsLayer(sm, var = "act", col="darkblue", inches = 0.6,
                  legend.style = "e", legend.pos="topleft",
                  legend.title.txt = "Labor Force\n(2014)", 
                  legend.values.rnd = 0)
-labelLayer(labels,txt="LIBELLE",halo=TRUE,col="white",bg="black",cex=1) 
+labelLayer(labels,txt="LIBELLE",halo=TRUE,col="white",bg="black",cex=.9) 
 # Scale Bar
 barscale(size = 10)
 # North Arrow
@@ -295,7 +329,7 @@ north(pos = "topright", col = "darkblue")
 # Full layout
 layoutLayer(title = "Workforce in Seine-Maritime", 
             sources = "Insee, 2018, OpenStreetMap contributors",
-            author = "Kim, Tim & Comeetie, 2018", 
+            author = "Kim, Tim & Comeetie, 2019", 
             col = "darkblue", coltitle = "white", tabtitle = TRUE, 
             frame = TRUE, scale = NULL, north = FALSE)
 ```
@@ -322,7 +356,7 @@ typoLayer(sm, var = "cat",
 plot(st_geometry(river.geom),col="azure",lwd = 3,add=TRUE)
 plot(st_geometry(roads.geom),col="#666666",lwd = 1.2,add=TRUE)
 # functions are dedicated to legend display
-labelLayer(labels,txt="LIBELLE",halo=TRUE,col="white",bg="black",cex=1) 
+labelLayer(labels,txt="LIBELLE",halo=TRUE,col="white",bg="black",cex=.9) 
 legendTypo(title.txt = "Dominant Socio-Professional\nCategory", 
            col = cols, 
            categ = modlab, 
@@ -331,7 +365,7 @@ barscale(size = 10)
 north(pos = "topright", col = "darkblue")
 layoutLayer(title = "Workforce Distribution in Seine-Maritime", 
             sources = "Insee, 2018, OpenStreetMap contributors",
-            author = "Kim, Tim & Comeetie, 2018", 
+            author = "Kim, Tim & Comeetie, 2019", 
             col = "darkblue", coltitle = "white", tabtitle = TRUE,
             frame = TRUE, scale = NULL, north = FALSE)
 
@@ -356,18 +390,18 @@ plot(st_geometry(dep), col = "ivory", border="ivory3", bg="azure",
      xlim = bb[c(1,3)], ylim =  bb[c(2,4)])
 choroLayer(sm, var = "pcad", breaks = bks, 
            col = cols, border = "grey80", 
-           legend.values.rnd = 1,
+           legend.values.rnd = 1, legend.horiz = TRUE,
            lwd = 0.4, legend.pos = "topleft", 
            legend.title.txt = "Share of managers (%)", add=T)
 
 plot(st_geometry(river.geom),col="azure",lwd = 3,add=TRUE)
 plot(st_geometry(roads.geom),col="#666666",lwd = 1.2,add=TRUE)
 # functions are dedicated to legend display
-labelLayer(labels,txt="LIBELLE",halo=TRUE,col="white",bg="black",cex=1) 
+labelLayer(labels,txt="LIBELLE",halo=TRUE,col="white",bg="black",cex=.9) 
 # Add a layout
 layoutLayer(title = "Managers", 
             sources = "Insee, 2018, OpenStreetMap contributors",
-            author = "Kim, Tim & Comeetie, 2018", 
+            author = "Kim, Tim & Comeetie, 2019", 
             theme = "green.pal", 
             col = "darkred", coltitle = "white", 
             tabtitle = TRUE, 
@@ -381,13 +415,13 @@ We could create the same map on a cartogram based on the active population stock
 
 ```{r, fig.height=4.75, cache = T}
 library(cartogram)
-sm_c1 <- cartogram_cont(sm, "act", 3)
+sm_c1 <- cartogram_cont(sm, "act", 3, prepare = "none")
 par(mar=c(0.2,0.2,1.4,0.2))
 plot(st_geometry(dep), col = "ivory", border="ivory3", bg="azure", 
      xlim = bb[c(1,3)], ylim =  bb[c(2,4)])
 choroLayer(sm_c1, var = "pcad", breaks = bks, 
            col = cols, border = "grey80",            
-           legend.values.rnd = 1,
+           legend.values.rnd = 1, legend.horiz = TRUE,
            lwd = 0.4, legend.pos = "topleft", 
            legend.title.txt = "Share of managers (%)", add=T)
 # functions are dedicated to legend display
@@ -396,7 +430,7 @@ labelLayer(sm_c1 %>% filter(LIBELLE %in% cities), txt="LIBELLE", halo=TRUE, col=
 # Add a layout
 layoutLayer(title = "Managers", 
             sources = "Insee, 2018",
-            author = "Kim, Tim & Comeetie, 2018", 
+            author = "Kim, Tim & Comeetie, 2019", 
             theme = "green.pal", 
             col = "darkred", coltitle = "white", 
             tabtitle = TRUE, 
@@ -424,10 +458,10 @@ choroLayer(grid, var = "pcad", breaks=bks,
 plot(st_geometry(river.geom),col="azure",lwd = 3,add=TRUE)
 plot(st_geometry(roads.geom),col="#666666",lwd = 1.2,add=TRUE)
 # functions are dedicated to legend display
-labelLayer(labels,txt="LIBELLE",halo=TRUE,col="white",bg="black",cex=1) 
+labelLayer(labels,txt="LIBELLE",halo=TRUE,col="white",bg="black",cex=.9) 
 layoutLayer(title = "Managers", 
             sources = "Insee, 2018, OpenStreetMap contributors",
-            author = "Kim, Tim & Comeetie, 2018", 
+            author = "Kim, Tim & Comeetie, 2019", 
             theme = "green.pal", 
             col = "darkred", coltitle = "white", 
             tabtitle = TRUE,
@@ -455,10 +489,10 @@ choroLayer(grid2, var = "pcad", breaks=bks,
 plot(st_geometry(river.geom),col="azure",lwd = 3,add=TRUE)
 plot(st_geometry(roads.geom),col="#666666",lwd = 1.2,add=TRUE)
 # functions are dedicated to legend display
-labelLayer(labels,txt="LIBELLE",halo=TRUE,col="white",bg="black",cex=1) 
+labelLayer(labels,txt="LIBELLE",halo=TRUE,col="white",bg="black",cex=.9) 
 layoutLayer(title = "Managers", 
             sources = "Insee, 2018, OpenStreetMap contributors",
-            author = "Kim, Tim & Comeetie, 2018", 
+            author = "Kim, Tim & Comeetie, 2019", 
             theme = "green.pal", 
             col = "darkred", coltitle = "white", 
             tabtitle = TRUE,
@@ -478,8 +512,7 @@ The computation of potentials could be considered as a **spatial interpolation m
 such as inverse distance weighted interpolation (IDW) or kernel density estimator. 
 These models aim to estimate unknown values of non-observed points from known 
 values given by measured points. Cartographically speaking, they are often used 
-to get a continuous surface from a set of discrete points. However, Stewart model 
-is mainly a spatial interaction modeling approach, with a possible secondary use for spatial interpolation.  
+to get a continuous surface from a set of discrete points. 
 
 ```{r, fig.height=4.75, cache = T}
 grid$cad100 <- grid$cad * 100
@@ -496,10 +529,10 @@ smoothLayer(x = grid, var = "cad100", var2 = "act",
 plot(st_geometry(river.geom),col="azure",lwd = 3,add=TRUE)
 plot(st_geometry(roads.geom),col="#666666",lwd = 1.2,add=TRUE)
 # functions are dedicated to legend display
-labelLayer(labels,txt="LIBELLE",halo=TRUE,col="white",bg="black",cex=1) 
+labelLayer(labels,txt="LIBELLE",halo=TRUE,col="white",bg="black",cex=.9) 
 layoutLayer(title = "Managers", 
             sources = "Insee, 2018, OpenStreetMap contributors",
-            author = "Kim, Tim & Comeetie, 2018", 
+            author = "Kim, Tim & Comeetie, 2019", 
             theme = "green.pal", 
             col = "darkred", coltitle = "white", 
             postitle = "center",
