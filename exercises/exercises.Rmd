@@ -67,126 +67,107 @@ knitr::opts_template$set(clues = list(box.title = "Clues",
                                       box.collapse = TRUE))
 ```
 
-The main data used in this tutorial and in the lecture are about the **geolocalisation of french restaurants** in Paris and in a department called Haute-Garonne. We use two different sources: 
-
-1. an official register called [**SIRENE**](https://www.data.gouv.fr/fr/datasets/base-sirene-des-entreprises-et-de-leurs-etablissements-siren-siret/) (Computer system for the business and establishment register) managed by the French National Institute of Statistics and Economic Studies ([Insee](https://www.insee.fr/en/accueil)) and [geolocated](http://data.cquest.org/geo_sirene/last/) by [Etalab](https://www.etalab.gouv.fr/) (French task force for Open Data). This register records the civil status of all companies and their establishments (including restaurants).
-
+The main data used in this tutorial and in the lecture are about the **geolocalisation of french restaurants** in Paris. Data is extracted from an official register called [**SIRENE**](https://www.data.gouv.fr/fr/datasets/base-sirene-des-entreprises-et-de-leurs-etablissements-siren-siret/) (Computer system for the business and establishment register) managed by the French National Institute of Statistics and Economic Studies ([Insee](https://www.insee.fr/en/accueil)) and [geolocated](http://data.cquest.org/geo_sirene/last/) by [Etalab](https://www.etalab.gouv.fr/) (French task force for Open Data). This register records the civil status of all companies and their establishments (including restaurants).
 SIRENE has the advantages of being rigorous and exhaustive on the French territory.
 
-2. the famous global open access mapping project [**OpenStreetMap**](https://www.openstreetmap.org/) (OSM). We can access to OSM database using the [osmdata](https://github.com/ropensci/osmdata) R package.
-
-OSM has many benefits, ensuring transparent data provenance and ownership, enabling real-time evolution of the database and, by allowing anyone to contribute, encouraging democratic decision making and citizen science. 
- 
 
 
 # Exercise 1 : Manipulate sf objects and associated data.frames
 
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
-1. Load in R the iris[^1] map layer ‘iris_31.rds’ of the french department called Haute-Garonne (numbered 31). Would the `sf::st_read` function also work? Why?
+Import the iris[^1] map layer 'iris_75.shp' of Paris.
 ```
 
 
 [^1]: In French, IRIS is an acronym of ‘aggregated units for statistical information’. Their target sizes are 2000 residents per basic unit.
 
 ```{block, opts.label = "clues"}
-Use the `readRDS` function.
+Use `sf::st_read()`.
 ```
 
 ```{r, solution = TRUE}
 library(sf)
-iris_31 <- readRDS("data/iris_31.rds")
-# iris_31 <- st_read("data/iris_31.rds")
+iris_75 <- st_read("data/iris_75.shp")
 ```
 
-```{block, solution = TRUE}
-`st_read` would not work because ‘iris_31.rds’ is not a shapefile but a file already R formatted. Simply load it with the `readRDS` function.
-```
 
 
 ```{block, box.title = "2", box.body = list(fill = "white"), box.icon = "fa-star"}
-Display the basemap of department 31 with `plot(iris_31)`.
+Display the basemap of Paris with `plot(iris_75)`.
 What do you notice ?
 ```
 
 ```{r, nm=TRUE, solution = TRUE}
-plot(iris_31)
+plot(iris_75)
 ```
 
 ```{block, solution = TRUE}
-We notice that R performs 3 graphs: one graph per variable in the sf object.
+We notice that R performs 4 graphs: one graph per variable in the sf object.
 ```
 
 ```{block, box.title = "3", box.body = list(fill = "white"), box.icon = "fa-star"}
-What is the functionality of the `sf::st_geometry` function? What solution do you propose then?
+What is the functionality of the `sf::st_geometry()` function? What solution do you propose then?
 ```
 
 ```{block, solution = TRUE}
-`sf::st_geometry` makes it possible to isolate the information contained in the ‘geometry’ column of the sf object. Using it, we put aside other variables (here *CODE_IRIS*, *P14_POP* and *INSEE_COM*).
+`sf::st_geometry()` makes it possible to isolate the information contained in the 'geometry' column of the sf object. Using it, we put aside other variables (here *CODE_IRIS*, *P14_POP*, *AREA* and *CODE_COM*).
 ```
 
+
 ```{r, nm=TRUE, solution = TRUE}
-# ?sf::st_geometry
-plot(st_geometry(iris_31))
+plot(st_geometry(iris_75))
 ```
+
 
 
 ```{block, box.title = "4", box.body = list(fill = "white"), box.icon = "fa-star"}
-In which projection is the map layer? Map it with another projection.
+Import the restaurant layer 'sir.shp' and display a map of Paris with its restaurants. 
 ```
 
-```{block, opts.label = "information"}
-Test the Azimuthal Equidistant projection with "`crs="+proj=aeqd +lat_0=90 +lon_0=0`" to see a clear difference and create a layer called ‘iris_31_aeqd’.
+```{block, solution = TRUE}
+Use `st_read()` and `sf::st_geometry()`.
+```
+
+
+```{r, sm=TRUE, solution = TRUE}
+sir_75 <- st_read("data/sir_75.shp")
+plot(st_geometry(iris_75), bg = "cornsilk", col = "lightblue", 
+     border = "white", lwd = .5)
+plot(st_geometry(sir_75), col = "red", pch = 20, cex = .2, add=TRUE)
+title("Restaurants in Paris")
+```
+
+
+
+```{block, box.title = "5", box.body = list(fill = "white"), box.icon = "fa-star"}
+Count the number of restaurant by iris. 
 ```
 
 ```{block, opts.label = "clues"}
-Use the `sf::st_crs` function to guess the projection and `sf::st_transform` to change the projection.
-```
-
-```{r, nm=TRUE, eval=FALSE, solution = TRUE}
-#?st_crs
-st_crs(iris_31)
-par(mar = c(0,0,0,0), mfrow = c(1,2))
-plot(st_geometry(iris_31))
-iris_31_aeqd <- st_transform(iris_31, crs="+proj=aeqd +lat_0=90 +lon_0=0")
-plot(st_geometry(iris_31_aeqd))
-```
-
-```{r, nm=TRUE, echo=FALSE}
-par(mar = c(0,0,0,0), mfrow = c(1,2))
-plot(st_geometry(iris_31))
-iris_31_aeqd <- st_transform(iris_31, crs="+proj=aeqd +lat_0=90 +lon_0=0")
-plot(st_geometry(iris_31_aeqd))
-```
-
-```{block, box.title = "5", box.body = list(fill = "white"), box.icon = "fa-star"}
-Calculate the distance matrix between the 5 first iris of department 31. Do you get the same distance matrix if you are working on a layer projected in another projection?
-```
-
-```{block, opts.label = "information"}
-Use map layers called ‘iris_31’ and ‘iris_31_aeqd’.
-```
-
-```{r, nm=TRUE, solution=TRUE}
-mat <- st_distance(x = iris_31[1:5,], y = iris_31[1:5,])
-mat
-
-mat_aeqd <- st_distance(x = iris_31_aeqd[1:5,], y = iris_31_aeqd[1:5,])
-mat_aeqd
-
-identical(mat,mat_aeqd)
+Use `sf::st_intersects()` and `sapply()`.
 ```
 
 
 ```{block, solution = TRUE}
-No, the two matrices are different.
+wwww
+
 ```
 
+
+```{r, nm=TRUE, solution = TRUE}
+inter <- st_intersects(x = iris_75, y = sir_75)
+iris_75$RESTAU <- sapply(inter, length)
+head(iris_75)
+```
+
+
+
 ```{block, box.title = "6", box.body = list(fill = "white"), box.icon = "fa-star"}
-Using the layer called ‘iris_31’, create a new aggregated map layer called ‘com_31’ which corresponds to the municipalities of department 31. Also keep in this new layer the information on the population in each municipality.
+Using the layer called ‘iris_75’, create a new aggregated map layer called ‘com_75’ which corresponds to the Paris Arrondissements. Also keep in this new layer the information on the population, area and number of restaurant in each municipality.
 ```
 
 ```{block, opts.label = "information"}
-The map layer called ‘iris_31’ contains the 5 digit codes of municipalities in its variable *INSEE_COM* and the 2014 population in its column *P14_POP*.
+The map layer called ‘iris_75’ contains the 5 digit codes of arrondissemnt in its variable *CODE_COM*.
 ```
 
 ```{block, opts.label = "clues"}
@@ -197,53 +178,52 @@ These functions also work with `sf` objects.
 
 ```{r, nm=TRUE, eval=FALSE, solution = TRUE}
 library(dplyr)
-com_31 <- iris_31 %>%
-  select(INSEE_COM,P14_POP) %>%
-  group_by(INSEE_COM) %>% 
-  summarize(P14_POP= sum(P14_POP)) %>% 
-  st_cast("MULTIPOLYGON")
+com_75 <- iris_75 %>%
+  group_by(CODE_COM) %>%
+  summarize(P14_POP = sum(P14_POP), 
+            AREA = sum(AREA), 
+            RESTAU = sum(RESTAU)) 
 
-plot(st_geometry(com_31))
 ```
 
 ```{r, nm=TRUE, echo=FALSE}
 library(dplyr)
-com_31 <- iris_31 %>%
-  select(INSEE_COM,P14_POP) %>%
-  group_by(INSEE_COM) %>% 
-  summarize(P14_POP= sum(P14_POP)) %>% 
-  st_cast("MULTIPOLYGON")
+com_75 <- iris_75 %>%
+  group_by(CODE_COM) %>%
+  summarize(P14_POP = sum(P14_POP), 
+            AREA = sum(AREA), 
+            RESTAU = sum(RESTAU)) 
 
-plot(st_geometry(com_31))
+plot(st_geometry(com_75))
 ```
 
 
-```{r, nm=TRUE, echo=FALSE, eval=FALSE}
-# Prepare data for following exercises
-# sir_31 <- readRDS("data/sir_31.rds")
-# 
-# com_31 <- left_join(com_31,
-#                     sir_31 %>%
-#                       mutate(INSEE_COM=paste0(DEPET,COMET)) %>% 
-#                       group_by(INSEE_COM) %>% 
-#                       summarize(nb_of_rest= n()) %>% 
-#                       st_set_geometry(NULL),
-#                     by=c("INSEE_COM"="INSEE_COM")) %>% 
-#   mutate(nb_of_rest=ifelse(is.na(nb_of_rest),0,nb_of_rest))
-# 
-# table_MAUP <- readRDS("data/table_MAUP.rds") %>% 
-#   select(CODGEO,EPCI)
-# 
-# epci_31  <- com_31 %>%
-#   left_join(table_MAUP,by=c("INSEE_COM"="CODGEO")) %>% 
-#   group_by(EPCI) %>% 
-#   summarize(P14_POP=sum(P14_POP),nb_of_rest= sum(nb_of_rest)) %>% 
-#   st_cast("MULTIPOLYGON")
+<!-- ```{r, nm=TRUE, echo=FALSE, eval=FALSE} -->
+<!-- # Prepare data for following exercises -->
+<!-- # sir_31 <- readRDS("data/sir_31.rds") -->
+<!-- #  -->
+<!-- # com_31 <- left_join(com_31, -->
+<!-- #                     sir_31 %>% -->
+<!-- #                       mutate(INSEE_COM=paste0(DEPET,COMET)) %>%  -->
+<!-- #                       group_by(INSEE_COM) %>%  -->
+<!-- #                       summarize(nb_of_rest= n()) %>%  -->
+<!-- #                       st_set_geometry(NULL), -->
+<!-- #                     by=c("INSEE_COM"="INSEE_COM")) %>%  -->
+<!-- #   mutate(nb_of_rest=ifelse(is.na(nb_of_rest),0,nb_of_rest)) -->
+<!-- #  -->
+<!-- # table_MAUP <- readRDS("data/table_MAUP.rds") %>%  -->
+<!-- #   select(CODGEO,EPCI) -->
+<!-- #  -->
+<!-- # epci_31  <- com_31 %>% -->
+<!-- #   left_join(table_MAUP,by=c("INSEE_COM"="CODGEO")) %>%  -->
+<!-- #   group_by(EPCI) %>%  -->
+<!-- #   summarize(P14_POP=sum(P14_POP),nb_of_rest= sum(nb_of_rest)) %>%  -->
+<!-- #   st_cast("MULTIPOLYGON") -->
 
-#Saving objects for following exercises
-#saveRDS(object = epci_31, file = "data/epci_31.rds")
-#saveRDS(object = com_31, file = "data/com_31.rds")
-```
+<!-- #Saving objects for following exercises -->
+<!-- #saveRDS(object = epci_31, file = "data/epci_31.rds") -->
+<!-- #saveRDS(object = com_31, file = "data/com_31.rds") -->
+<!-- ``` -->
 
 
 <!-- ```{block, box.title = "7", box.body = list(fill = "white"), box.icon = "fa-star"} -->
@@ -329,12 +309,12 @@ plot(st_geometry(com_31))
 
 # Exercise 2 : Static maps
 
-We would like here to design EPCI maps that combine the number of restaurants and the number of restaurants per 10,000 inhabitants. The EPCI correspond to the level of french intercommunalites. 
+We would like here to design EPCI maps that combine the number of restaurants and the number of restaurants per 10,000 inhabitants. The EPCI correspond to the level of french intercommunalites.
 
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
 Data preparation:
 
-* Load ‘fra.shp’ in R: the map layer of the borders of the French metropolitan territory. 
+* Load ‘fra.shp’ in R: the map layer of the borders of the French metropolitan territory.
 * Load the layer called ‘epci_31.rds’ (which contains the population and the number of restaurants in each EPCI) and create a variable called *nb_rest_10000inhab* which corresponds to the number of restaurants per 10,000 inhabitants in each territory.
 * Create a vector of quantiles breaks of the *nb_rest_10000inhab* variable.
 * Create the vector colors which corresponds to a the number of classes defined earlier.
@@ -361,7 +341,7 @@ bks <- getBreaks(v = epci_31$nb_rest_10000inhab, method = "quantile", nclass = 4
 cols <- carto.pal("orange.pal", length(bks)-1)
 # Create a "typo"" variable
 epci_31 <- epci_31 %>%
-  mutate(typo = cut(nb_rest_10000inhab,breaks = bks, dig.lab = 2, 
+  mutate(typo = cut(nb_rest_10000inhab,breaks = bks, dig.lab = 2,
                     include.lowest = TRUE))
 ```
 
@@ -379,21 +359,21 @@ par(mar = c(0.2, 0.2, 1.4, 0.2), bg = "azure")
 # Find EPCI bounding box
 bb <- st_bbox(epci_31)
 # Plot France using EPCI boundingbox
-plot(st_geometry(fra), col="ivory", border = "ivory3", 
+plot(st_geometry(fra), col="ivory", border = "ivory3",
      xlim = bb[c(1, 3)], ylim = bb[c(2, 4)])
 # Plot the choropleth layer
-choroLayer(epci_31, var = "nb_rest_10000inhab", 
-           breaks = bks, col = cols, border = "grey80", lwd = 0.5, 
+choroLayer(epci_31, var = "nb_rest_10000inhab",
+           breaks = bks, col = cols, border = "grey80", lwd = 0.5,
            legend.pos = "topleft",add = TRUE,
            legend.title.txt = "Number of restaurants\nfor 10,000 inhabitants")
 # Plot proportionnal symbols
-propSymbolsLayer(epci_31, var="nb_of_rest", col="#440170",border=NA, 
+propSymbolsLayer(epci_31, var="nb_of_rest", col="#440170",border=NA,
                  legend.pos="left", inches=0.4, add = TRUE,
                  legend.title.txt = "Number of restaurants")
 # Add a layout layer
-layoutLayer(title = "Restaurants", sources = "Insee, 2018", 
-            author = "Kim & Tim, 2018", 
-            theme = "green.pal", col = "darkred", 
+layoutLayer(title = "Restaurants", sources = "Insee, 2018",
+            author = "Kim & Tim, 2018",
+            theme = "green.pal", col = "darkred",
             coltitle = "white", postitle = "center",
             frame = TRUE, scale = 10)
 # Add a north (south) arrow
@@ -430,12 +410,12 @@ map_ggplot <- ggplot() +
 plot(map_ggplot)
 ```
 
-**With tmap:** 
+**With tmap:**
 
 **TODO Timothée**
 
 
-#### {.tabset} 
+#### {.tabset}
 
 ##### cartography
 ```{r, nm=TRUE, echo=FALSE}
@@ -444,21 +424,21 @@ par(mar = c(0.2, 0.2, 1.4, 0.2), bg = "azure")
 # Find EPCI bounding box
 bb <- st_bbox(epci_31)
 # Plot France using EPCI boundingbox
-plot(st_geometry(fra), col="ivory", border = "ivory3", 
+plot(st_geometry(fra), col="ivory", border = "ivory3",
      xlim = bb[c(1, 3)], ylim = bb[c(2, 4)])
 # Plot the choropleth layer
-choroLayer(epci_31, var = "nb_rest_10000inhab", 
-           breaks = bks, col = cols, border = "grey80", lwd = 0.5, 
+choroLayer(epci_31, var = "nb_rest_10000inhab",
+           breaks = bks, col = cols, border = "grey80", lwd = 0.5,
            legend.pos = "topleft",add = TRUE,
            legend.title.txt = "Number of restaurants\nfor 10,000 inhabitants")
 # Plot proportionnal symbols
-propSymbolsLayer(epci_31, var="nb_of_rest", col="#440170",border=NA, 
+propSymbolsLayer(epci_31, var="nb_of_rest", col="#440170",border=NA,
                  legend.pos="left", inches=0.4, add = TRUE,
                  legend.title.txt = "Number of restaurants")
 # Add a layout layer
-layoutLayer(title = "Restaurants", sources = "Insee, 2018", 
-            author = "Kim & Tim, 2018", 
-            theme = "green.pal", col = "darkred", 
+layoutLayer(title = "Restaurants", sources = "Insee, 2018",
+            author = "Kim & Tim, 2018",
+            theme = "green.pal", col = "darkred",
             coltitle = "white", postitle = "center",
             frame = TRUE, scale = 10)
 # Add a north (south) arrow
@@ -652,23 +632,22 @@ library(mapview)
 library(sf)
 
 sir_31 <- readRDS("data/sir_31.rds")
-mapview(sir_31, map.types = "OpenStreetMap", 
-        col.regions = "#940000", 
-        label = paste(sir_31$L2_NORMALISEE, sir_31$NOMEN_LONG, sep = " - "), 
+mapview(sir_31, map.types = "OpenStreetMap",
+        col.regions = "#940000",
+        label = paste(sir_31$L2_NORMALISEE, sir_31$NOMEN_LONG, sep = " - "),
         color = "white", legend = TRUE, layer.name = "Restaurants in SIRENE",
-        homebutton = FALSE, lwd = 0.5) 
+        homebutton = FALSE, lwd = 0.5)
 ```
 
 ```{r, nm=TRUE, eval=TRUE, echo=FALSE}
 library(mapview)
 library(sf)
 
-sir_31 <- readRDS("data/sir_31.rds")
-mapview(sir_31, map.types = "OpenStreetMap", 
-        col.regions = "#940000", 
-        label = paste(sir_31$L2_NORMALISEE, sir_31$NOMEN_LONG, sep = " - "), 
+mapview(sir_75, map.types = "OpenStreetMap",
+        col.regions = "#940000",
+        label = sir_75$L1_NORM,
         color = "white", legend = TRUE, layer.name = "Restaurants in SIRENE",
-        homebutton = FALSE, lwd = 0.5) 
+        homebutton = FALSE, lwd = 0.5)
 ```
 
 ** TODO To continue Comeetie **
