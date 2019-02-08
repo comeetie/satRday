@@ -89,7 +89,7 @@ mtq <- st_read("data/mtq/martinique.shp")
 ```
 
 ### Projection {.tabset}
-Get current crs with [epsg code](https://epsg.io/) and change projection with `st_transform()`.
+Get current crs with `st_crs()` ([epsg code](https://epsg.io/)) and change projection with `st_transform()`.
 
 ```{r}
 st_crs(mtq)
@@ -136,7 +136,7 @@ Aggregation according to a grouping variable:
 library(dplyr)
 mtq_u2 <- mtq %>% 
   group_by(STATUT) %>% 
-  summarize(P13_POP=sum(P13_POP))
+  summarize(P13_POP = sum(P13_POP))
 plot(st_geometry(mtq), col="lightblue")
 plot(st_geometry(mtq_u2), add=T, lwd=2, border = "red", col=NA)
 ```
@@ -147,12 +147,13 @@ mtq_b <- st_buffer(x = mtq_u, dist = 5000)
 plot(st_geometry(mtq), col="lightblue")
 plot(st_geometry(mtq_u), add=T, lwd=2)
 plot(st_geometry(mtq_b), add=T, lwd=2, border = "red")
-
 ```
 
 
 ### Polygon Intersection 
+
 ```{r, nm=TRUE}
+# create a polygon
 m <- rbind(c(700015,1624212), c(700015,1641586), c(719127,1641586), 
            c(719127,1624212), c(700015,1624212))
 p <- st_sf(st_sfc(st_polygon(list(m))), crs = st_crs(mtq))
@@ -160,6 +161,7 @@ plot(st_geometry(mtq))
 plot(p, border="red", lwd=2, add=T)
 ```
 
+`st_intersection()` extracts the part of mtq that is intersected by the created polygon. 
 ```{r, nm=TRUE, warning=F}
 mtq_z <- st_intersection(x = mtq, y = p)
 plot(st_geometry(mtq))
@@ -167,15 +169,22 @@ plot(st_geometry(mtq_z), col="red", border="green", add=T)
 ```
 
 
-### Voronoi Polygons  
-<small>google: "st_voronoi R sf" (https://github.com/r-spatial/sf/issues/474 & https://stackoverflow.com/questions/45719790/create-voronoi-polygon-with-simple-feature-in-r)
-</small>
+### Count Points in Polygons  
+`st_sample()` creates a set of points contains in mtq. 
 ```{r, nm=TRUE}
-mtq_v <- st_voronoi(x = st_union(mtq_c))
-mtq_v <- st_intersection(st_cast(mtq_v), st_union(mtq))
-mtq_v <- st_join(x = st_sf(mtq_v), y = mtq_c, join=st_intersects)
-mtq_v <- st_cast(mtq_v, "MULTIPOLYGON")
-plot(st_geometry(mtq_v), col='lightblue')
+pts <- st_sample(x = mtq, size = 50)
+plot(st_geometry(mtq))
+plot(pts, pch = 20, col = "red", add=TRUE, cex = 1)
+```
+
+`st_interects()` creates a list of the points within each polygons.
+```{r, nm=TRUE}
+inter <- st_intersects(mtq, pts)
+mtq$nbpts <- sapply(X = inter, FUN = length)
+plot(st_geometry(mtq))
+# display munucipalities that intersect at least 2 point
+plot(st_geometry(mtq[mtq$nbpts>2,]), col = "grey", add=TRUE)
+plot(pts, pch = 20, col = "red", add=TRUE, cex = 1)
 ```
 
 
