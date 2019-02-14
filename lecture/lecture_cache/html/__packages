@@ -7,3 +7,5 @@ bindrcpp
 cartography
 cartogram
 SpatialPosition
+sp
+raster
