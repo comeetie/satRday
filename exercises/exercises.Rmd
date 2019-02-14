@@ -518,4 +518,13 @@ leaflet(grid  %>% st_transform(4326) %>% filter(!is.na(missing))) %>% addProvide
 ```
 
 
+--------------------------------------------
+
+--------------------------------------------
+
+**reproducibility**
+
+```{r}
+sessionInfo()
+```
 
