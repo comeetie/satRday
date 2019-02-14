@@ -189,159 +189,6 @@ plot(st_geometry(com_75), col = NA, border = "ivory4", lwd = 2, add = TRUE)
 
 
 
-```{r, solution=TRUE}
-library(sf)
-library(cartography)
-library(dplyr)
-# Import data
-fra <- st_read("data/fra.shp", quiet = TRUE)
-# Create the variable
-com_75$nb_rest_10000inhab <- 10000 * com_75$RESTAU / com_75$P14_POP
-# Define breaks
-bks <- getBreaks(v = com_75$nb_rest_10000inhab, method = "quantile", nclass = 4)
-# Define color palette
-cols <- carto.pal("wine.pal", length(bks)-1)
-
-# Define plot margins
-par(mar = c(0.2, 0.2, 1.4, 0.2), bg = "azure")
-# Find EPCI bounding box
-bb <- st_bbox(com_75)
-# Plot France using EPCI boundingbox
-plot(st_geometry(fra), col="ivory", border = "ivory3",
-     xlim = bb[c(1, 3)], ylim = bb[c(2, 4)])
-# Plot the choropleth layer
-choroLayer(com_75, var = "nb_rest_10000inhab",
-           breaks = bks, col = cols, lwd = 0.5,
-           legend.pos = "topleft",add = TRUE, border = "white",
-           legend.title.txt = "Number of restaurants\nfor 10,000 inhabitants")
-# Plot proportionnal symbols
-propSymbolsLayer(com_75, var="RESTAU", col="#ffffff80",border = "grey20",
-                 legend.pos="left", inches=0.3, add = TRUE, lwd = 1,
-                 legend.title.txt = "Number of restaurants")
-# Add a layout layer
-layoutLayer(title = "Restaurants", sources = "Insee, 2018",
-            author = "Kim & Tim, 2018", tabtitle = TRUE, 
-            theme = "green.pal", col = "darkred",
-            coltitle = "white", 
-            frame = TRUE, scale = 2)
-# Add a north (south) arrow
-north(pos = "topright", south = TRUE)
-
-
-```
-
-
-
-
-<!-- ```{r, nm=TRUE, echo=FALSE, eval=FALSE} -->
-<!-- # Prepare data for following exercises -->
-<!-- # sir_31 <- readRDS("data/sir_31.rds") -->
-<!-- #  -->
-<!-- # com_31 <- left_join(com_31, -->
-<!-- #                     sir_31 %>% -->
-<!-- #                       mutate(INSEE_COM=paste0(DEPET,COMET)) %>%  -->
-<!-- #                       group_by(INSEE_COM) %>%  -->
-<!-- #                       summarize(nb_of_rest= n()) %>%  -->
-<!-- #                       st_set_geometry(NULL), -->
-<!-- #                     by=c("INSEE_COM"="INSEE_COM")) %>%  -->
-<!-- #   mutate(nb_of_rest=ifelse(is.na(nb_of_rest),0,nb_of_rest)) -->
-<!-- #  -->
-<!-- # table_MAUP <- readRDS("data/table_MAUP.rds") %>%  -->
-<!-- #   select(CODGEO,EPCI) -->
-<!-- #  -->
-<!-- # epci_31  <- com_31 %>% -->
-<!-- #   left_join(table_MAUP,by=c("INSEE_COM"="CODGEO")) %>%  -->
-<!-- #   group_by(EPCI) %>%  -->
-<!-- #   summarize(P14_POP=sum(P14_POP),nb_of_rest= sum(nb_of_rest)) %>%  -->
-<!-- #   st_cast("MULTIPOLYGON") -->
-
-<!-- #Saving objects for following exercises -->
-<!-- #saveRDS(object = epci_31, file = "data/epci_31.rds") -->
-<!-- #saveRDS(object = com_31, file = "data/com_31.rds") -->
-<!-- ``` -->
-
-
-<!-- ```{block, box.title = "7", box.body = list(fill = "white"), box.icon = "fa-star"} -->
-<!-- Using the data contained in ‘sir_31’, add to this layer the number of restaurants per municipality.  -->
-<!-- ``` -->
-
-<!-- ```{block, opts.label = "information"} -->
-<!-- The code of each municipality is not in the ‘sir_31’ database. To create it, you have to create a variable called *INSEE_COM* (5 digits) which concatenates the *DEPET* (2 digits) and *COMET* (3 digits) variables. -->
-<!-- ``` -->
-
-<!-- ```{r, nm=TRUE, solution = TRUE} -->
-
-<!-- sir_31 <- readRDS("data/sir_31.rds") -->
-
-<!-- com_31 <- left_join(com_31, -->
-<!--                     sir_31 %>% -->
-<!--                       mutate(INSEE_COM=paste0(DEPET,COMET)) %>%  -->
-<!--                       group_by(INSEE_COM) %>%  -->
-<!--                       summarize(nb_of_rest= n()) %>%  -->
-<!--                       st_set_geometry(NULL), -->
-<!--                     by=c("INSEE_COM"="INSEE_COM")) %>%  -->
-<!--   mutate(nb_of_rest=ifelse(is.na(nb_of_rest),0,nb_of_rest)) -->
-<!-- ``` -->
-
-<!-- ```{block, box.title = "8", box.body = list(fill = "white"), box.icon = "fa-star"} -->
-<!-- Aggregate all the information present in ‘com_31’ at the level of french intercommunalites (called EPCI) and call this new layer ‘epci_31’.  -->
-<!-- ``` -->
-
-
-<!-- ```{block, opts.label = "information"} -->
-<!-- You have to use the database ‘table_MAUP.rds’ to have a match between the municipality code (*CODGEO*) and intercommunality code (*EPCI*). -->
-<!-- ``` -->
-
-
-<!-- ```{r, nm=TRUE, eval=FALSE, solution = TRUE} -->
-<!-- table_MAUP <- readRDS("data/table_MAUP.rds") %>%  -->
-<!--   select(CODGEO,EPCI) -->
-
-<!-- epci_31  <- com_31 %>% -->
-<!--   left_join(table_MAUP,by=c("INSEE_COM"="CODGEO")) %>%  -->
-<!--   group_by(EPCI) %>%  -->
-<!--   summarize(P14_POP=sum(P14_POP),nb_of_rest= sum(nb_of_rest)) %>%  -->
-<!--   st_cast("MULTIPOLYGON") -->
-
-<!-- plot(st_geometry(epci_31)) -->
-<!-- ``` -->
-
-
-<!-- ```{r, nm=TRUE, echo=FALSE} -->
-<!-- table_MAUP <- readRDS("data/table_MAUP.rds") %>%  -->
-<!--   select(CODGEO,EPCI) -->
-
-<!-- epci_31  <- com_31 %>% -->
-<!--   left_join(table_MAUP,by=c("INSEE_COM"="CODGEO")) %>%  -->
-<!--   group_by(EPCI) %>%  -->
-<!--   summarize(P14_POP=sum(P14_POP),nb_of_rest= sum(nb_of_rest)) %>%  -->
-<!--   st_cast("MULTIPOLYGON") -->
-
-<!-- plot(st_geometry(epci_31)) -->
-<!-- ``` -->
-
-
-
-<!-- ```{block, box.title = "9", box.body = list(fill = "white"), box.icon = "fa-star"} -->
-<!-- Using the `cartography` package, simply plot a map of french intercommunality with a  proportional circle layer related to the number of restaurants. -->
-<!-- ``` -->
-
-<!-- ```{block, opts.label = "clues"} -->
-<!-- The `propSymbolsLayer` function allows you to draw proportional circles. -->
-<!-- ``` -->
-
-<!-- ```{r, nm=TRUE, eval=FALSE, solution = TRUE} -->
-<!-- library(cartography) -->
-<!-- plot(st_geometry(epci_31), col = "ivory1", border = "ivory3",lwd =0.5,bg = "#FBEDDA") -->
-<!-- propSymbolsLayer(epci_31, var = "nb_of_rest", inches = 0.2) -->
-<!-- ``` -->
-
-<!-- ```{r, nm=TRUE, echo=FALSE} -->
-<!-- library(cartography) -->
-<!-- plot(st_geometry(epci_31), col = "ivory1", border = "ivory3",lwd =0.5,bg = "#FBEDDA") -->
-<!-- propSymbolsLayer(epci_31, var = "nb_of_rest", inches = 0.2) -->
-<!-- ``` -->
-
 # Exercise 2 : Static maps
 
 We would like to design a map of Paris arrondissments that combines the number of restaurants and the number of restaurants per 10,000 inhabitants. 
@@ -447,11 +294,8 @@ map_ggplot <- ggplot() +
 
 plot(map_ggplot)
 
+
 ```
-
-
-
-
 
 
 ##### `tmap`
@@ -475,3 +319,203 @@ tm_shape(com_75) +
   tm_credits("Insee & SIRENE, 2018
 Kim, Tim & Comeetie, 2019", position = c("left", "bottom"))
 ```
+
+
+# Exercise 3 : Interactive maps and OSM data
+
+In this exercice we will use mapview and leaflet to explore two data source on restaurants Siren which we alrady used previously and one extracted from OSM thanks to the osmdata package.
+
+```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
+Load the dataset ‘sir_75’ used previously and map the more than 23,000 restaurants of paris with the `mapview` package. Try using different parameters to customize your map.
+```
+
+```{block, opts.label = "information"}
+For example, you can use the `map.types`, `col.regions`, `label`, `color`, `legend`, `layer.name`, `homebutton`, `lwd` ... parameters of the `mapview` function.
+```
+
+```{r, nm=TRUE, eval=FALSE, echo=TRUE, solution=TRUE}
+library(mapview)
+library(sf)
+
+sir_75 <- readRDS("data/sir_75.rds")
+mapview(sir_75, map.types = "OpenStreetMap",
+        col.regions = "#940000",
+        label = paste(sir_31$L2_NORMALISEE, sir_31$NOMEN_LONG, sep = " - "),
+        color = "white", legend = TRUE, layer.name = "Restaurants in SIRENE",
+        homebutton = FALSE, lwd = 0.5)
+```
+
+```{r, nm=TRUE, eval=TRUE, echo=FALSE}
+library(mapview)
+library(sf)
+
+mapview(sir_75, map.types = "OpenStreetMap",
+        col.regions = "#940000",
+        label = sir_75$L1_NORM,
+        color = "white", legend = TRUE, layer.name = "Restaurants in SIRENE",
+        homebutton = FALSE, lwd = 0.2)
+```
+
+```{block, box.title = "2", box.body = list(fill = "white"), box.icon = "fa-star"}
+Use the ‘iris_75 ’polygons to extract a bounding box in WGS84 for Paris. Then take advantage of the `osmdata` package to retrieve all the restaurants and fast-foods inside this bounding box, store the restults in a variable called restaurants. This objects are mapped in  OSM with the key:value pairs amenity:restaurants and amenity:fast_food.
+```
+
+```{block, opts.label = "clues"}
+Use `sf::st_bbox()` and `sf::st_transform()` for extracting the bounding box. The epsg code of WGS84 is 4326.
+Use `osmdata:opq()` to define the boudning box of the osm request, `osmdata:add_osm_feature()` to define the key values pairs you are loonking for and `osmdata:osmdata_sf()` to retrieve the osm data.
+```
+
+```{r, nm=TRUE, eval=FALSE, echo=TRUE, solution=TRUE}
+library(osmdata)
+
+bb      <- iris_75 %>% st_transform(4326) %>% st_bbox()
+q       <- opq(bbox = bb,timeout = 180)
+qr      <- add_osm_feature(q, key = 'amenity',value = 'restaurant')
+qff     <- add_osm_feature(q, key = 'amenity',value = 'fast_food')
+
+restaurants <- c(osmdata_sf(qr),osmdata_sf(qff))
+                 
+```
+```{r, nm=TRUE, eval=TRUE, echo=FALSE}
+library(osmdata)
+
+bb      <- iris_75 %>% st_transform(4326) %>% st_bbox()
+q       <- opq(bbox = bb,timeout = 180)
+qr      <- add_osm_feature (q, key = 'amenity',value = 'restaurant')
+qff     <- add_osm_feature (q, key = 'amenity',value = 'fast_food')
+
+restaurants <- c(osmdata_sf(qr),osmdata_sf(qff))
+                 
+```
+
+```{block, box.title = "3", box.body = list(fill = "white"), box.icon = "fa-star"}
+Use the following code to clean the results and projet them in lambert93. This code keeps only the name attribute, compute the centroid for the restaurants stored as polygons or mutpli-polygons and cleans the points to remove the ones that were extracted from exploding the polygins. Eventually, the restaurants outside of Paris are removed.
+```
+
+```{r, nm=TRUE, eval=TRUE, echo=TRUE}
+
+rmpoly <- restaurants$osm_multipolygons %>% 
+  st_transform(2154) %>% 
+  select(name) %>% st_centroid()
+
+rpoint <- restaurants$osm_points %>% 
+  filter(!is.na(amenity)) %>% 
+  st_transform(2154) %>% select(name) 
+
+rpoly  <- restaurants$osm_polygons %>% 
+  st_transform(2154) %>% 
+  select(name)  %>% st_centroid()
+
+restaurants_osm <- rbind(rmpoly,rpoly,rpoint)   
+
+osm_75 <- st_intersection(restaurants_osm , iris_75 %>% st_geometry() %>% st_union())
+```
+
+
+```{block, box.title = "4", box.body = list(fill = "white"), box.icon = "fa-star"}
+Store a mapview map of the restaurants stored in sir_75 and another one of those extracted from OSM. Use the sync function of the mapview package to display both maps in a side by side fashion with synchronisation.  
+```
+
+```{r, nm=TRUE, eval=FALSE, echo=TRUE, solution=TRUE}
+library(mapview)
+
+
+map_osm = mapview(osm_75, map.types = "OpenStreetMap", 
+        col.regions = "#940000", 
+        label = as.character(osm_75$name), 
+        color = "white", legend = FALSE, layer.name = "Restaurants in OSM",
+        homebutton = FALSE, lwd = 0.5) 
+
+map_sir = mapview(sir_75, map.types = "OpenStreetMap", 
+        col.regions = "#940000", 
+        label = sir_75$L2_NORMA, 
+        color = "white", legend = TRUE, layer.name = "Restaurants in SIREN",
+        homebutton = FALSE, lwd = 0.5) 
+
+sync(map_osm,map_sir)
+```
+
+```{r, nm=TRUE, eval=TRUE, echo=FALSE}
+library(mapview)
+
+
+map_osm = mapview(osm_75, map.types = "OpenStreetMap", 
+        col.regions = "#940000", 
+        label = as.character(osm_75$name), 
+        color = "white", legend = FALSE, layer.name = "Restaurants in OSM",
+        homebutton = FALSE, lwd = 0.5) 
+
+map_sir = mapview(sir_75, map.types = "OpenStreetMap", 
+        col.regions = "#940000", 
+        label = sir_75$L2_NORMA, 
+        color = "white", legend = TRUE, layer.name = "Restaurants in SIREN",
+        homebutton = FALSE, lwd = 0.5) 
+
+sync(map_osm,map_sir)
+```
+
+## Bonus : find location to improve osm data
+
+
+```{block, box.title = "5", box.body = list(fill = "white"), box.icon = "fa-star"}
+Use the `pt_in_grid` function to count the number of restaurants per grid cell of 500 meters square for both datasets. Then, merge the two resulting grid to compute the number of missing restaurants in OSM with respect to the SIREN data-source and use leaflet to draw a grided choropleth.
+```
+
+```{r, nm=TRUE, eval=TRUE, echo=TRUE}
+pt_in_grid <- function(feat, adm, cellsize = 1000){
+  grid <- st_make_grid(x = adm, cellsize = cellsize, what = "polygons")
+  . <- st_intersects(grid, adm)
+  grid <- grid[sapply(X = ., FUN = length)>0]
+  . <- st_intersects(grid, feat)
+  grid <- st_sf(n = sapply(X = ., FUN = length), grid)
+  return(grid)
+}
+```
+
+
+```{r, nm=TRUE, eval=FALSE, echo=TRUE, solution=TRUE}
+library(leaflet)
+gr_osm <- pt_in_grid(osm_75,iris_75,500)
+gr_sir <- pt_in_grid(sir_75,iris_75,500)
+
+grid <- gr_osm %>% rename(osm=n) %>% 
+  mutate(siren = gr_sir$n) %>% 
+  filter(siren==0,osm==0) %>%
+  mutate(missing =  pmax(siren - osm,0))
+
+
+bks = c(0,5,10,20,40,80,160,300)
+cols <- carto.pal("green.pal", 7)
+color.scale <- colorBin(cols, domain = range(bks), bins=bks)
+leaflet(grid  %>% st_transform(4326) %>% filter(!is.na(missing))) %>% addProviderTiles(providers$Stamen.TonerLite) %>% 
+  addPolygons(fillColor = ~color.scale(missing), stroke = FALSE, fillOpacity = 0.7) %>% 
+  addLegend(colors = cols, labels = round(bks[1:(length(bks)-1)]*10)/10,
+            title = "# net difference between</br> restaurants in </br>SIREN and OSM")
+
+
+```
+
+
+```{r, nm=TRUE, eval=TRUE, echo=FALSE}
+library(leaflet)
+gr_osm <- pt_in_grid(osm_75,iris_75,500)
+gr_sir <- pt_in_grid(sir_75,iris_75,500)
+
+grid <- gr_osm %>% rename(osm=n) %>% 
+  mutate(siren = gr_sir$n) %>% 
+  mutate(missing =  pmax(siren - osm,0))
+
+
+bks = c(0,5,10,20,40,80,160,300)
+cols <- carto.pal("green.pal", 7)
+color.scale <- colorBin(cols, domain = range(bks), bins=bks)
+leaflet(grid  %>% st_transform(4326) %>% filter(!is.na(missing))) %>% addProviderTiles(providers$Stamen.TonerLite) %>% 
+  addPolygons(fillColor = ~color.scale(missing), stroke = FALSE, fillOpacity = 0.7) %>% 
+  addLegend(colors = cols, labels = round(bks[1:(length(bks)-1)]*10)/10,
+            title = "# net difference between</br> restaurants in </br>SIREN and OSM")
+
+
+```
+
+
+
