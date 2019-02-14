@@ -15,7 +15,6 @@ output:
 ---
 
 ```{r knitr_init, echo=FALSE, cache=FALSE, include=FALSE}
-library(stringr)
 library(knitr)
 ## Global options
 options(max.print="90")
