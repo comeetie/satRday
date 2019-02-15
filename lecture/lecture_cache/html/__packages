@@ -9,3 +9,7 @@ cartogram
 SpatialPosition
 sp
 raster
+ggplot2
+mapview
+leaflet
+tmap

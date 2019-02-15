@@ -20,7 +20,7 @@ library(rmdformats)
 ## Global options
 options(max.print="75")
 opts_chunk$set(echo=TRUE,
-               cache=FALSE, #TRUE
+               cache=TRUE,
                prompt=FALSE,
                tidy=FALSE,
                comment=NA,
@@ -253,10 +253,11 @@ head(sm)
 
 
 ```{r, eval=TRUE,cache=TRUE}
-# Extract label of main cities
-cities = c("Rouen","Fécamp","Le Havre","Dieppe","Le Tréport")
-labels = sm %>% filter(LIBELLE %in% cities)
+# Extract a layer of prefecture and sub-prefectures
+pref = sm %>% filter(LIBELLE %in% c("Rouen","Le Havre","Dieppe"))
 ```
+
+
 ```{r, eval=FALSE,cache=TRUE}
 library(osmdata)
 # Get major roads from osm
@@ -285,13 +286,15 @@ river.geom <- st_geometry(river$osm_lines %>% filter(name.fr == "La Seine")) %>%
 st_write(roads.geom, dsn = "data/dep76/road.shp")
 st_write(river.geom, dsn = "data/dep76/river.shp")
 ```
+
 ```{r , echo = FALSE}
 roads.geom <- st_read(dsn = "data/dep76/road.shp", quiet = TRUE)
 river.geom <- st_read(dsn = "data/dep76/river.shp", quiet = TRUE)
 ```
+
 ```{r, eval=TRUE,cache=TRUE, fig.height=4.75}
-bb <- st_bbox(sm)
 # the bbox is used to center the map on the Seine Maritime depatement
+bb <- st_bbox(sm)
 par(mar=c(0.2,0.2,1.4,0.2), bg="azure")
 plot(st_geometry(dep), col = "ivory", border="ivory3", 
      xlim = bb[c(1,3)], ylim =  bb[c(2,4)])
@@ -305,51 +308,72 @@ plot(st_geometry(river.geom),col="azure",lwd = 3,add=TRUE)
 
 ### Proportional symbols
 
-
+Simple map:
 ```{r}
-# (Very) simple map
 library(cartography)
 plot(st_geometry(sm))
 propSymbolsLayer(sm, var = "act")
 title("Active Population")
 ```
 
-
+Custom map:
 ```{r, fig.height=4.75}
-# Custom map of active population
+# set the figure margins
 par(mar=c(0.2,0.2,1.4,0.2))
+# the bbox is used to center the map on the Seine Maritime departement
 bb <- st_bbox(sm)
-# the bbox is used to center the map on the Seine Maritime depatement
+# plot the departements centered on Seine Maritime
 plot(st_geometry(dep), col = "ivory", border="ivory3",  bg="azure", 
      xlim = bb[c(1,3)], ylim =  bb[c(2,4)])
-plot(st_geometry(sm), col="cornsilk2", border = NA, lwd = 0.5, add=T)
+# plot municipalities
+plot(st_geometry(sm), col="cornsilk2", border = NA, add=T)
+# plot roads
 plot(st_geometry(roads.geom),col="#666666",lwd = 1.2,add=TRUE)
+# plot rivers
 plot(st_geometry(river.geom),col="azure",lwd = 3,add=TRUE)
-propSymbolsLayer(sm, var = "act", col="darkblue", inches = 0.6, 
-                 border = "white", lwd=0.7, symbols = "square",
-                 legend.style = "e", legend.pos="topleft",
-                 legend.title.txt = "Labor Force\n(2014)", 
-                 legend.values.rnd = 0)
-labelLayer(labels,txt="LIBELLE",halo=TRUE,col="white",bg="black",cex=.9) 
-# Scale Bar
-barscale(size = 10)
-# North Arrow
+# plot symbols proportionnal to the active popylation
+propSymbolsLayer(
+  x = sm, 
+  var = "act",
+  inches = 0.6,
+  symbols = "square",
+  col="darkblue",  
+  border = "white", 
+  lwd = 0.7, 
+  legend.style = "e", 
+  legend.pos="topleft",
+  legend.title.txt = "Labor Force\n(2014)", 
+  legend.values.rnd = 0
+)
+# plot prefecture and subprefectures labels
+labelLayer(
+  x = pref, 
+  txt = "LIBELLE", 
+  halo = TRUE,
+  col = "white", 
+  bg = "black", 
+  cex = c(.8,.8,1)
+) 
+# plot a north arrow
 north(pos = "topright", col = "darkblue")
-# Full layout
-layoutLayer(title = "Workforce in Seine-Maritime", 
-            sources = "Insee, 2018, OpenStreetMap contributors",
-            author = "Kim, Tim & Comeetie, 2019", 
-            col = "darkblue", coltitle = "white", tabtitle = TRUE, 
-            frame = TRUE, scale = NULL, north = FALSE)
+# plot a full layout (title, sources, authors, scalebar)
+layoutLayer(
+  title = "Workforce in Seine-Maritime", 
+  sources = "Insee, 2018, OpenStreetMap contributors",
+  author = "Kim, Tim & Comeetie, 2019", 
+  col = "darkblue", 
+  coltitle = "white", 
+  tabtitle = TRUE, 
+  scale = 10
+)
 ```
 
 ### Typology Map
 
 ```{r, fig.height=4.75}
-# To display qualitative data
 # modalities
 mod <- c("agr", "art", "cad", "int", "emp", "ouv")
-# labels in the legedn
+# labels in the legend
 modlab <- c("Agriculteurs", "Artisans","Cadres", "Prof. Inter.", "Employés", "Ouvriers")
 # colors
 cols <- c("#e3b4a2", "#a2d5d6", "#debbd4", "#b5dab6", "#afc2e3", "#e9e2c1")
@@ -357,58 +381,64 @@ cols <- c("#e3b4a2", "#a2d5d6", "#debbd4", "#b5dab6", "#afc2e3", "#e9e2c1")
 par(mar=c(0.2,0.2,1.4,0.2))
 plot(st_geometry(dep), col = "ivory", border="ivory3", bg="azure",
      xlim = bb[c(1,3)], ylim =  bb[c(2,4)])
-typoLayer(sm, var = "cat", 
-          border = "ivory", lwd = 0.5, 
-          legend.values.order = mod,
-          col = cols,
-          add=TRUE, legend.pos = "n")
+typoLayer(
+  x = sm, 
+  var = "cat",
+  col = cols,
+  border = "ivory", 
+  lwd = 0.5, 
+  legend.values.order = mod,
+  legend.pos = "n", 
+  add=TRUE
+)
 plot(st_geometry(river.geom),col="azure",lwd = 3,add=TRUE)
 plot(st_geometry(roads.geom),col="#666666",lwd = 1.2,add=TRUE)
-# functions are dedicated to legend display
-labelLayer(labels,txt="LIBELLE",halo=TRUE,col="white",bg="black",cex=.9) 
+labelLayer(pref, txt = "LIBELLE", halo = TRUE, 
+           col = "white", bg = "black", cex = c(.8,.8,1)) 
+# legend* functions are dedicated to legend display
 legendTypo(title.txt = "Dominant Socio-Professional\nCategory", 
            col = cols, 
            categ = modlab, 
            nodata = F)
-barscale(size = 10)
 north(pos = "topright", col = "darkblue")
 layoutLayer(title = "Workforce Distribution in Seine-Maritime", 
             sources = "Insee, 2018, OpenStreetMap contributors",
             author = "Kim, Tim & Comeetie, 2019", 
-            col = "darkblue", coltitle = "white", tabtitle = TRUE,
-            frame = TRUE, scale = NULL, north = FALSE)
-
+            theme = "kaki.pal", tabtitle = TRUE,
+            scale = 10)
 ```
 
 
 ### Choropleth Map
 
-```{r, fig.height=4.75}
+```{r, fig.height=4.75, cache=TRUE}
 # Compute the share of "managers" in the active population
 sm$pcad <- 100 * sm$cad / sm$act
-
-# The getBreaks() function is used to classify the variable
-bks <- getBreaks(v = sm$pcad, method = "quantile", nclass = 6)
-
-# The carto.pal() function give access to various cartographic color palettes
-cols <- carto.pal("green.pal", 3,"wine.pal",3)
 
 # Create the map
 par(mar=c(0.2,0.2,1.4,0.2))
 plot(st_geometry(dep), col = "ivory", border="ivory3", bg="azure",
      xlim = bb[c(1,3)], ylim =  bb[c(2,4)])
-choroLayer(sm, var = "pcad", breaks = bks, 
-           col = cols, border = "grey80", 
-           legend.values.rnd = 1, legend.horiz = TRUE,
-           lwd = 0.4, legend.pos = "topleft", 
-           legend.title.txt = "Share of managers (%)", add=T)
-
+choroLayer(
+  x = sm, 
+  var = "pcad", 
+  method = "quantile", 
+  nclass = 6,
+  col = carto.pal("green.pal", 3,"wine.pal",3),
+  lwd = 0.4, 
+  border = "grey80", 
+  legend.values.rnd = 1, 
+  legend.horiz = TRUE,
+  legend.pos = "topleft", 
+  legend.title.txt = "Share of managers (%)", 
+  add=TRUE
+)
 plot(st_geometry(river.geom),col="azure",lwd = 3,add=TRUE)
 plot(st_geometry(roads.geom),col="#666666",lwd = 1.2,add=TRUE)
 # functions are dedicated to legend display
-labelLayer(labels,txt="LIBELLE",halo=TRUE,col="white",bg="black",cex=.9) 
+labelLayer(pref,txt="LIBELLE",halo=TRUE,col="white",bg="black",cex=.9) 
 # Add a layout
-layoutLayer(title = "Managers", 
+layoutLayer(title = "Managers Distribution in Seine Maritime", 
             sources = "Insee, 2018, OpenStreetMap contributors",
             author = "Kim, Tim & Comeetie, 2019", 
             theme = "green.pal", 
@@ -424,20 +454,33 @@ We could create the same map on a cartogram based on the active population stock
 
 ```{r, fig.height=4.75, cache = T}
 library(cartogram)
-sm_c1 <- cartogram_cont(sm, "act", 3, prepare = "none")
+sm_c1 <- cartogram_cont(x = sm, weight = "act", prepare = "none")
+
+# The getBreaks() function is used to classify the variable
+bks <- getBreaks(v = sm$pcad, method = "quantile", nclass = 6)
+# The carto.pal() function give access to various cartographic color palettes
+cols <- carto.pal("green.pal", 3,"wine.pal",3)
+
+
 par(mar=c(0.2,0.2,1.4,0.2))
 plot(st_geometry(dep), col = "ivory", border="ivory3", bg="azure", 
      xlim = bb[c(1,3)], ylim =  bb[c(2,4)])
-choroLayer(sm_c1, var = "pcad", breaks = bks, 
-           col = cols, border = "grey80",            
-           legend.values.rnd = 1, legend.horiz = TRUE,
-           lwd = 0.4, legend.pos = "topleft", 
-           legend.title.txt = "Share of managers (%)", add=T)
+choroLayer(
+  x = sm_c1, 
+  var = "pcad", 
+  breaks = bks, 
+  col = cols, 
+  border = "grey80",            
+  legend.values.rnd = 1, legend.horiz = TRUE,
+  lwd = 0.4, legend.pos = "topleft", 
+  legend.title.txt = "Share of managers (%)", add=TRUE
+)
 # functions are dedicated to legend display
-labelLayer(sm_c1 %>% filter(LIBELLE %in% cities), txt="LIBELLE", halo=TRUE, col="white",
+labelLayer(sm_c1 %>% filter(LIBELLE %in% pref$LIBELLE), txt="LIBELLE", 
+           halo=TRUE, col="white",
            bg="black", cex=1) 
 # Add a layout
-layoutLayer(title = "Managers", 
+layoutLayer(title = "Managers Distribution in Seine Maritime", 
             sources = "Insee, 2018",
             author = "Kim, Tim & Comeetie, 2019", 
             theme = "green.pal", 
@@ -449,11 +492,15 @@ north(pos = "topright", south = TRUE)
 
 
 ### Gridded Map
-These maps may allow to hide or, at least, diminish the MAUP. 
+
 ```{r, fig.height=4.75, cache = T}
 # Create a grid based on sm (cell area = 4 square km)
-grid <- getGridLayer(x = sm, cellsize = 4000*4000, 
-                     type = "regular", var = c('cad', 'act'))
+grid <- getGridLayer(
+  x = sm, 
+  cellsize = 4000*4000, 
+  type = "regular", 
+  var = c('cad', 'act')
+)
 # Compute the share of managers
 grid$pcad <- 100 * grid$cad / grid$act
 # Display the map as choropleth layer
@@ -466,9 +513,8 @@ choroLayer(grid, var = "pcad", breaks=bks,
            legend.title.txt = "Share of managers\n(en %)", add=T)
 plot(st_geometry(river.geom),col="azure",lwd = 3,add=TRUE)
 plot(st_geometry(roads.geom),col="#666666",lwd = 1.2,add=TRUE)
-# functions are dedicated to legend display
-labelLayer(labels,txt="LIBELLE",halo=TRUE,col="white",bg="black",cex=.9) 
-layoutLayer(title = "Managers", 
+labelLayer(pref,txt="LIBELLE",halo=TRUE,col="white",bg="black",cex=.9) 
+layoutLayer(title = "Managers Distribution in Seine Maritime", 
             sources = "Insee, 2018, OpenStreetMap contributors",
             author = "Kim, Tim & Comeetie, 2019", 
             theme = "green.pal", 
@@ -484,7 +530,7 @@ It is also possible to create hexagonal grids.
 ```{r, fig.height=4.75, cache = T}
 # Create a grid based on sm (cell area = 4 square km)
 grid2 <- getGridLayer(x = sm, cellsize = 4000*4000, 
-                     type = "hexagonal", var = c('cad', 'act'))
+                      type = "hexagonal", var = c('cad', 'act'))
 # Compute the share of managers
 grid2$pcad <- 100 * grid2$cad / grid2$act
 # Display the map as choropleth layer
@@ -497,9 +543,8 @@ choroLayer(grid2, var = "pcad", breaks=bks,
            legend.title.txt = "Share of managers\n(en %)", add=T)
 plot(st_geometry(river.geom),col="azure",lwd = 3,add=TRUE)
 plot(st_geometry(roads.geom),col="#666666",lwd = 1.2,add=TRUE)
-# functions are dedicated to legend display
-labelLayer(labels,txt="LIBELLE",halo=TRUE,col="white",bg="black",cex=.9) 
-layoutLayer(title = "Managers", 
+labelLayer(pref,txt="LIBELLE",halo=TRUE,col="white",bg="black",cex=.9) 
+layoutLayer(title = "Managers Distribution in Seine Maritime", 
             sources = "Insee, 2018, OpenStreetMap contributors",
             author = "Kim, Tim & Comeetie, 2019", 
             theme = "green.pal", 
@@ -507,8 +552,6 @@ layoutLayer(title = "Managers",
             tabtitle = TRUE,
             frame = TRUE, scale = 10)
 north(pos = "topright")
-
-
 
 ```
 
@@ -523,23 +566,24 @@ These models aim to estimate unknown values of non-observed points from known
 values given by measured points. Cartographically speaking, they are often used 
 to get a continuous surface from a set of discrete points. 
 
-```{r, fig.height=4.75, cache = T}
-grid$cad100 <- grid$cad * 100
+```{r, fig.height=4.75, cache=TRUE}
+sm$cad100 <- sm$cad * 100
 par(mar=c(0.2,0.2,1.4,0.2), bg="azure")
 plot(st_geometry(dep), col = "ivory", border="ivory3", 
      xlim = bb[c(1,3)], ylim =  bb[c(2,4)])
-smoothLayer(x = grid, var = "cad100", var2 = "act", 
-            typefct = "exponential", 
-            span = 4000, beta = 2, breaks = bks, col = cols,
-            legend.pos = "topleft", mask = st_buffer(sm, 0),
-            legend.values.rnd = 1,
-            legend.title.txt = "Share of managers* (%)", 
-            border = "grey90", lwd = 0.2, add=T)
+smoothLayer(
+  x = sm, var = "cad100", var2 = "act", 
+  typefct = "exponential", span = 4000, beta = 2, 
+  breaks = bks, col = cols,
+  legend.pos = "topleft", mask = sm,
+  legend.values.rnd = 1,
+  legend.title.txt = "Share of managers* (%)", 
+  border = "grey90", lwd = 0.2, add = TRUE
+)
 plot(st_geometry(river.geom),col="azure",lwd = 3,add=TRUE)
-plot(st_geometry(roads.geom),col="#666666",lwd = 1.2,add=TRUE)
-# functions are dedicated to legend display
-labelLayer(labels,txt="LIBELLE",halo=TRUE,col="white",bg="black",cex=.9) 
-layoutLayer(title = "Managers", 
+plot(st_geometry(roads.geom),col="#666666",lwd = .8,add=TRUE)
+labelLayer(pref,txt="LIBELLE",halo=TRUE,col="white",bg="black",cex=.9) 
+layoutLayer(title = "Managers Distribution in Seine Maritime", 
             sources = "Insee, 2018, OpenStreetMap contributors",
             author = "Kim, Tim & Comeetie, 2019", 
             theme = "green.pal", 
@@ -554,11 +598,17 @@ text(x = 488000, y = 6921000,adj = 0,
 ```
 
 
-### Cheat Sheet
+### Resources
 
-The [cheat sheet](http://riatelab.github.io/cartography/vignettes/cheatsheet/cartography_cheatsheet.pdf) displays a quick overview of `cartography`'s main features:  
+* A [cheat sheet](http://riatelab.github.io/cartography/vignettes/cheatsheet/cartography_cheatsheet.pdf) displays a quick overview of `cartography`'s main features:  
+[<img src="img/cheat_sheet.png" alt="cartography cheat sheet" width="400">](http://riatelab.github.io/cartography/vignettes/cheatsheet/cartography_cheatsheet.pdf)
 
-[<img src="img/cheat_sheet.png" alt="cartography cheat sheet" width="800">](http://riatelab.github.io/cartography/vignettes/cheatsheet/cartography_cheatsheet.pdf)
+* A [vignette](https://cran.r-project.org/web/packages/cartography/vignettes/cartography.html) introduces the package and provides examples of how to create some thematic maps:  
+[<img src="img/vignette.png" alt="cartography vignette" width="400">](https://cran.r-project.org/web/packages/cartography/vignettes/cartography.html)
+
+* A [website](http://riatelab.github.io/cartography/docs/) shows the package documentation and vignette:  
+[<img src="img/website.png" alt="cartography website" width="400">](http://riatelab.github.io/cartography/docs/)
+
 
 
 
@@ -571,7 +621,7 @@ The [cheat sheet](http://riatelab.github.io/cartography/vignettes/cheatsheet/car
 
 Proportional symbols layer
 
-```{r, fig.height=4.75}
+```{r, fig.height=4.75, cache=TRUE}
 library(ggplot2)
 
 labgg = labels %>% st_centroid() 
@@ -600,7 +650,7 @@ ggplot() +
 
 Choropleth layer
 
-```{r, fig.height=4.75}
+```{r, fig.height=4.75, cache=TRUE}
 ggplot() +
   geom_sf(data = dep, colour = "ivory3",fill = "ivory") +
   geom_sf(data = sm, aes(fill = pcad), colour = "grey80") +
@@ -608,7 +658,7 @@ ggplot() +
   geom_sf(data = roads.geom, colour = "#666666",size=0.5) +
   geom_text(data=labgg,aes(x=x,y=y,label=LIBELLE))+
   scale_fill_gradientn(name = "Share of managers (%)",
-            
+                       
                        colours = carto.pal("green.pal", 3,"wine.pal",3),
                        values=bks/max(bks))+
   coord_sf(crs = 2154, datum = NA,
@@ -623,15 +673,64 @@ ggplot() +
 
 ### `tmap`
 
-TODO Timothée
+Proportional symbols layer
+```{r, fig.height=4.75, cache=TRUE}
+library(tmap)
+tm_shape(dep, bbox = st_bbox(sm)) + 
+  tm_polygons(col = "ivory", border.col = "ivory3")+
+  tm_shape(roads.geom) + 
+  tm_lines(col="#666666",lwd = 1.2) +
+  tm_shape(river.geom) +
+  tm_lines(col="azure",lwd = 3) + 
+  tm_shape(sm)  +
+  tm_polygons(col="cornsilk2", border.alpha = 0) +
+  tm_shape(river.geom) +
+  tm_lines(col="azure",lwd = 3) + 
+  tm_shape(sm)  +
+  tm_symbols(size = "act", col = "darkblue",
+             scale = 4,
+             title.size = "Active Population") +
+  tm_compass(type = "arrow", position = c("right", "top")) +
+  tm_scale_bar(position = c("right", "bottom"), breaks = c(0,5,10)) + 
+  tm_credits("Insee & SIRENE, 2018
+Kim, Tim & Comeetie, 2019", position = c("left", "bottom")) +
+  tm_layout(title = "Workforce in Seine-Maritime")
 
+```
+
+Choropleth layer
+
+```{r, fig.height=4.75, cache=TRUE}
+
+library(tmap)
+tm_shape(dep, bbox = st_bbox(sm)) + 
+  tm_polygons(col = "ivory", border.col = "ivory3")+
+  tm_shape(roads.geom) + 
+  tm_lines(col="#666666",lwd = 1.2) +
+  tm_shape(river.geom) +
+  tm_lines(col="azure",lwd = 3) + 
+  tm_shape(sm)  +
+  tm_polygons(col="cornsilk2", border.alpha = 0) +
+  tm_shape(river.geom) +
+  tm_lines(col="azure",lwd = 3) + 
+  tm_shape(sm)  +
+  tm_polygons("pcad", 
+              breaks = bks,
+              palette=cols, title = "Share of Managers") +
+  tm_compass(type = "arrow", position = c("right", "top")) +
+  tm_scale_bar(position = c("right", "bottom"), breaks = c(0,5,10)) + 
+  tm_credits("Insee & SIRENE, 2018
+Kim, Tim & Comeetie, 2019", position = c("left", "bottom")) +
+  tm_layout(title = "Managers in Seine-Maritime")
+
+```
 
 ## `mapview` and `leaflet` {.tabset}
 
 ### Proportional symbols layer
 These interactive maps, as appealing as they seem to be, are not really suitable for presenting geostatistical information. For porportional symbols both `leaflet` and `mapview` lack a proper way to build lengends. Nonetheless, they can be really useful for exploratory data analysis. Both librairies are quite similar with some advantage for `mapview` (e.g the possibility to render to canvas for bigger datasets) and some other for `leaflet` (e.g using a customized projection different from web-meractor)
 
-```{r}
+```{r, cache=TRUE}
 library(mapview)
 # convert polygon to point and compute the circle radius for porportional area
 actifs = sm %>% st_centroid() %>% mutate(radius = sqrt(act)) %>% arrange(desc(act))
@@ -645,7 +744,7 @@ mapview(actifs, map.types = "Stamen.TonerLite", cex="radius", legend=FALSE,
 With `leaflet` data must be provided in long/lat (st_transform(4326)) and will be converted by default to the webmercator coordinate reference system (CRS). You may choose between circles with radius specified in meters (addCircle) or in pixels (addCircleMarkers). If specified in pixel, the radius will stay the same whatever the zoom level is. If specified in meters, it will evolve with zoom level.
 
 
-```{r}
+```{r, cache=TRUE}
 library(leaflet)
 leaflet(actifs %>% st_transform(4326)) %>% addProviderTiles(providers$Stamen.TonerLite) %>%
   addCircles(radius = ~radius * 30, popup = ~paste0(LIBELLE," : ",act,"actifs"),
@@ -664,7 +763,7 @@ mapview(grid,map.types = "Stamen.TonerLite",zcol="pcad")
 `leaflet` enables fine tuning of the color scale and legend.
 
 
-```{r}
+```{r, cache=TRUE}
 # define a color scale function from colors and breaks
 color.scale <- colorBin(cols, domain = range(bks), bins=bks)
 
@@ -672,7 +771,7 @@ leaflet(grid  %>% st_transform(4326)) %>% addProviderTiles(providers$Stamen.Tone
   addPolygons(fillColor = ~color.scale(pcad), stroke = FALSE, fillOpacity = 0.7) %>% 
   addLegend(colors = cols, labels = round(bks[1:(length(bks)-1)]*10)/10,
             title = "Share of Manager (%)")
-  
+
 ```
 
 
@@ -709,7 +808,7 @@ bouq = read_sf("./data/BOQ_2017_massif_uni/BOQ_2017_massif_uni_L93.shp")
 cha = read_sf("./data/CHA_2017_massif_uni/CHA_2017_massif_uni_L93.shp")
 
 leaflet(options = leafletOptions(worldCopyJump = F, crs = epsg2154)) %>%
- # addTiles(urlTemplate = tile_ortho,attribution = tile_attrib) %>% 
+  # addTiles(urlTemplate = tile_ortho,attribution = tile_attrib) %>% 
   addTiles(urlTemplate = tile_mnt,attribution = tile_attrib) %>% 
   addPolygons(data = bouq %>% st_transform(4326), fillColor = '#50162D',color = '#772A7F',
               fillOpacity = 0.05,opacity = 1, weight = 2.5, dashArray = "3") %>% 
