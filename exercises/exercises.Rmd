@@ -247,7 +247,7 @@ par(mar = c(0, 0, 1.2, 0), bg = "cornsilk")
 choroLayer(com_75, var = "rest_per_10k",
            breaks = bks, col = cols, 
            border = "grey", lwd = 0.5,
-           legend.pos = "topright", #legend.horiz = T,
+           legend.pos = "topright", legend.horiz = TRUE,
            legend.title.txt = "Number of restaurants\nper 10,000 inhabitants")
 # Plot proportionnal symbols
 propSymbolsLayer(com_75, var="RESTAU", 
