@@ -619,12 +619,12 @@ text(x = 488000, y = 6921000,adj = 0,
 
 ### `ggplot2`
 
-Proportional symbols layer
+Proportional symbols map
 
 ```{r, fig.height=4.75, cache=TRUE}
 library(ggplot2)
 
-labgg = labels %>% st_centroid() 
+labgg = pref %>% st_centroid() 
 labgg$x = st_coordinates(labgg)[,1]
 labgg$y = st_coordinates(labgg)[,2]
 
@@ -640,15 +640,14 @@ ggplot() +
              range = c(0,20)) +
   coord_sf(crs = 2154, datum = NA,
            xlim = st_bbox(sm)[c(1,3)],
-           ylim = st_bbox(sm)[c(2,4)]
-  ) +
+           ylim = st_bbox(sm)[c(2,4)]) +
   theme_minimal() +
   theme(panel.background = element_rect(fill = "azure",color=NA)) +
   labs(title = "Active population",
        caption = "Insee, 2018\nKim & Tim, 2018",x="",y="")
 ```
 
-Choropleth layer
+Choropleth map
 
 ```{r, fig.height=4.75, cache=TRUE}
 ggplot() +
@@ -657,14 +656,12 @@ ggplot() +
   geom_sf(data = river.geom, colour = "azure",size=2) +
   geom_sf(data = roads.geom, colour = "#666666",size=0.5) +
   geom_text(data=labgg,aes(x=x,y=y,label=LIBELLE))+
-  scale_fill_gradientn(name = "Share of managers (%)",
-                       
-                       colours = carto.pal("green.pal", 3,"wine.pal",3),
-                       values=bks/max(bks))+
+  scale_fill_gradientn(name = "Share of managers (%)", 
+                       values=bks/max(bks),
+                       colours = carto.pal("green.pal", 3,"wine.pal",3)) +
   coord_sf(crs = 2154, datum = NA,
            xlim = st_bbox(sm)[c(1,3)],
-           ylim = st_bbox(sm)[c(2,4)]
-  ) +
+           ylim = st_bbox(sm)[c(2,4)]) +
   theme_minimal() +
   theme(panel.background = element_rect(fill = "azure",color=NA)) +
   labs(title = "Managers",
@@ -673,7 +670,7 @@ ggplot() +
 
 ### `tmap`
 
-Proportional symbols layer
+Proportional symbols map
 ```{r, fig.height=4.75, cache=TRUE}
 library(tmap)
 tm_shape(dep, bbox = st_bbox(sm)) + 
@@ -698,7 +695,7 @@ Kim, Tim & Comeetie, 2019", position = c("left", "bottom")) +
 
 ```
 
-Choropleth layer
+Choropleth map
 
 ```{r, fig.height=4.75, cache=TRUE}
 
