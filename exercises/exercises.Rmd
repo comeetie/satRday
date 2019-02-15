@@ -120,11 +120,11 @@ plot(st_geometry(iris_75))
 
 
 ```{block, box.title = "4", box.body = list(fill = "white"), box.icon = "fa-star"}
-Import the restaurant layer 'sir.shp' and display a map of Paris with its restaurants. 
+Import the restaurant layer 'sir.shp' and display a map of Paris with its restaurants simply with `plot` function. 
 ```
 
-```{block, solution = TRUE}
-Use `st_read()` and `sf::st_geometry()`.
+```{block, opts.label = "clues"}
+Use `sf::st_read()` and `sf::st_geometry()`. You can also customize many options of `plot` function : bg, col, lwd, border, pch, cex...
 ```
 
 
@@ -156,11 +156,11 @@ head(iris_75)
 
 
 ```{block, box.title = "6", box.body = list(fill = "white"), box.icon = "fa-star"}
-Using the layer called ‘iris_75’, create a new aggregated map layer called ‘com_75’ which corresponds to the Paris Arrondissements. Also keep in this new layer the information on the population, area and number of restaurant in each municipality.
+Using the layer called ‘iris_75’, create a new aggregated map layer called ‘com_75’ which corresponds to ‘arrondissements’ (districts) of Paris . Also keep in this new layer the information on the population, area and number of restaurant in each district.
 ```
 
 ```{block, opts.label = "information"}
-The map layer called ‘iris_75’ contains the 5 digit codes of arrondissemnt in its variable *CODE_COM*.
+The map layer called ‘iris_75’ contains the 5 digit codes of district in its variable *CODE_COM*.
 ```
 
 ```{block, opts.label = "clues"}
@@ -223,7 +223,7 @@ cols <- carto.pal("wine.pal", length(bks)-1)
 
 
 
-# For ggplot2 maps - Create a "typo"" variable
+# For ggplot2 maps - Create a "typo" variable
 library(dplyr)
 com_75 <- com_75 %>%
   mutate(typo = cut(rest_per_10k, breaks = bks, dig.lab = 2,
@@ -247,7 +247,7 @@ par(mar = c(0, 0, 1.2, 0), bg = "cornsilk")
 choroLayer(com_75, var = "rest_per_10k",
            breaks = bks, col = cols, 
            border = "grey", lwd = 0.5,
-           legend.pos = "topright", legend.horiz = T,
+           legend.pos = "topright", #legend.horiz = T,
            legend.title.txt = "Number of restaurants\nper 10,000 inhabitants")
 # Plot proportionnal symbols
 propSymbolsLayer(com_75, var="RESTAU", 
@@ -322,10 +322,13 @@ Kim, Tim & Comeetie, 2019", position = c("left", "bottom"))
 
 # Exercise 3 : Interactive maps and OSM data
 
-In this exercice we will use mapview and leaflet to explore two data source on restaurants Siren which we alrady used previously and one extracted from OSM thanks to the osmdata package.
+In this exercice we will use `mapview` and `leaflet` to explore two data sources on restaurants: 
+
+* Siren which we already used previously 
+* OSM thanks to the `osmdata` package.
 
 ```{block, box.title = "1", box.body = list(fill = "white"), box.icon = "fa-star"}
-Load the dataset ‘sir_75’ used previously and map the more than 23,000 restaurants of paris with the `mapview` package. Try using different parameters to customize your map.
+Load the dataset ‘sir_75’ used previously and map the more than 23,000 restaurants of Paris with the `mapview` package. Try using different parameters to customize your map.
 ```
 
 ```{block, opts.label = "information"}
@@ -339,9 +342,9 @@ library(sf)
 sir_75 <- readRDS("data/sir_75.rds")
 mapview(sir_75, map.types = "OpenStreetMap",
         col.regions = "#940000",
-        label = paste(sir_31$L2_NORMALISEE, sir_31$NOMEN_LONG, sep = " - "),
+        label = sir_75$L1_NORM,
         color = "white", legend = TRUE, layer.name = "Restaurants in SIRENE",
-        homebutton = FALSE, lwd = 0.5)
+        homebutton = FALSE, lwd = 0.2)
 ```
 
 ```{r, nm=TRUE, eval=TRUE, echo=FALSE}
@@ -356,15 +359,25 @@ mapview(sir_75, map.types = "OpenStreetMap",
 ```
 
 ```{block, box.title = "2", box.body = list(fill = "white"), box.icon = "fa-star"}
-Use the ‘iris_75 ’polygons to extract a bounding box in WGS84 for Paris. Then take advantage of the `osmdata` package to retrieve all the restaurants and fast-foods inside this bounding box, store the restults in a variable called restaurants. This objects are mapped in  OSM with the key:value pairs amenity:restaurants and amenity:fast_food.
+Use the ‘iris_75’ polygons to extract a bounding box for Paris in WGS84 projection.
+
+Then take advantage of the `osmdata` package to retrieve all the restaurants and fast-foods inside this bounding box. For this, use the two ‘key:value’ pairs  ‘amenity:restaurants’ and ‘amenity:fast_food’.
+
+Store the results in a variable called *restaurants*.
+
 ```
 
 ```{block, opts.label = "clues"}
 Use `sf::st_bbox()` and `sf::st_transform()` for extracting the bounding box. The epsg code of WGS84 is 4326.
-Use `osmdata:opq()` to define the boudning box of the osm request, `osmdata:add_osm_feature()` to define the key values pairs you are loonking for and `osmdata:osmdata_sf()` to retrieve the osm data.
+
+Use: 
+
+* `osmdata:opq()` to define the boudning box of the osm request
+* `osmdata:add_osm_feature()` to define the key:value pairs you are looking for 
+* `osmdata:osmdata_sf()` to retrieve the osm data.
 ```
 
-```{r, nm=TRUE, eval=FALSE, echo=TRUE, solution=TRUE}
+```{r, nm=TRUE, eval=TRUE, echo=TRUE, solution=TRUE}
 library(osmdata)
 
 bb      <- iris_75 %>% st_transform(4326) %>% st_bbox()
@@ -375,20 +388,17 @@ qff     <- add_osm_feature(q, key = 'amenity',value = 'fast_food')
 restaurants <- c(osmdata_sf(qr),osmdata_sf(qff))
                  
 ```
-```{r, nm=TRUE, eval=TRUE, echo=FALSE}
-library(osmdata)
-
-bb      <- iris_75 %>% st_transform(4326) %>% st_bbox()
-q       <- opq(bbox = bb,timeout = 180)
-qr      <- add_osm_feature (q, key = 'amenity',value = 'restaurant')
-qff     <- add_osm_feature (q, key = 'amenity',value = 'fast_food')
-
-restaurants <- c(osmdata_sf(qr),osmdata_sf(qff))
-                 
-```
 
 ```{block, box.title = "3", box.body = list(fill = "white"), box.icon = "fa-star"}
-Use the following code to clean the results and projet them in lambert93. This code keeps only the name attribute, compute the centroid for the restaurants stored as polygons or mutpli-polygons and cleans the points to remove the ones that were extracted from exploding the polygins. Eventually, the restaurants outside of Paris are removed.
+Use the following code to clean the results and project them in Lambert93.
+
+This code: 
+
+* keeps the *name* attribute only
+* computes the centroids for the restaurants stored as polygons or multi-polygons 
+* cleans the points by removing the ones that were extracted from exploding the polygons.
+
+Eventually, the restaurants outside Paris are removed.
 ```
 
 ```{r, nm=TRUE, eval=TRUE, echo=TRUE}
@@ -412,7 +422,12 @@ osm_75 <- st_intersection(restaurants_osm , iris_75 %>% st_geometry() %>% st_uni
 
 
 ```{block, box.title = "4", box.body = list(fill = "white"), box.icon = "fa-star"}
-Store a mapview map of the restaurants stored in sir_75 and another one of those extracted from OSM. Use the sync function of the mapview package to display both maps in a side by side fashion with synchronisation.  
+Display two `mapview` maps: 
+
+* one with restaurants stored in sir_75
+* another one with restaurants extracted from OSM.
+
+Use the `mapview::sync` function to display both maps side by side with synchronisation.  
 ```
 
 ```{r, nm=TRUE, eval=FALSE, echo=TRUE, solution=TRUE}
@@ -457,7 +472,11 @@ sync(map_osm,map_sir)
 
 
 ```{block, box.title = "5", box.body = list(fill = "white"), box.icon = "fa-star"}
-Use the `pt_in_grid` function to count the number of restaurants per grid cell of 500 meters square for both datasets. Then, merge the two resulting grid to compute the number of missing restaurants in OSM with respect to the SIREN data-source and use leaflet to draw a grided choropleth.
+For both datasets, use the `pt_in_grid` function below to count the number of restaurants per grid cell of 500 square meters.
+
+Then, merge the two resulting grids to compute the number of restaurants missing in OSM compared to the number of restaurants in SIRENE data (which is supposed to be exhaustive on the French territory). 
+
+Use `leaflet` to draw a gridded choropleth.
 ```
 
 ```{r, nm=TRUE, eval=TRUE, echo=TRUE}
