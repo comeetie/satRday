@@ -170,7 +170,7 @@ plot(st_geometry(mtq_z), col="red", border="green", add=T)
 
 
 ### Count Points in Polygons  
-`st_sample()` creates a set of points contains in mtq. 
+`st_sample()` creates a set of points contained in mtq. 
 ```{r, nm=TRUE}
 pts <- st_sample(x = mtq, size = 50)
 plot(st_geometry(mtq))
@@ -629,7 +629,12 @@ TODO Timothée
 ## `mapview` and `leaflet` {.tabset}
 
 ### Proportional symbols layer
-These interactive maps, as appealing as they seem to be, are not really suitable for presenting geostatistical information. For porportional symbols both `leaflet` and `mapview` lack a proper way to build lengends. Nonetheless, they can be really useful for exploratory data analysis. Both librairies are quite similar with some advantage for `mapview` (e.g the possibility to render to canvas for bigger datasets) and some other for `leaflet` (e.g using a customized projection different from web-meractor)
+
+These interactive maps, as appealing as they seem to be, are not really suitable for presenting geostatistical information.
+
+For proportional symbols both `leaflet` and `mapview` lack a proper way to build legends. Nonetheless, they can be really useful for exploratory data analysis.
+
+Both librairies are quite similar with some advantage for `mapview` (e.g the possibility to render to canvas for bigger datasets) and some other for `leaflet` (e.g using a customized projection different from web-meractor)
 
 ```{r}
 library(mapview)
@@ -642,7 +647,9 @@ mapview(actifs, map.types = "Stamen.TonerLite", cex="radius", legend=FALSE,
 ```
 
 
-With `leaflet` data must be provided in long/lat (st_transform(4326)) and will be converted by default to the webmercator coordinate reference system (CRS). You may choose between circles with radius specified in meters (addCircle) or in pixels (addCircleMarkers). If specified in pixel, the radius will stay the same whatever the zoom level is. If specified in meters, it will evolve with zoom level.
+With `leaflet` data must be provided in long/lat (st_transform(4326)) and will be converted by default to the webmercator coordinate reference system (CRS).
+
+You may choose between circles with radius specified in meters (addCircle) or in pixels (addCircleMarkers). If specified in pixel, the radius will stay the same whatever the zoom level is. If specified in meters, it will evolve with zoom level.
 
 
 ```{r}
@@ -654,8 +661,12 @@ leaflet(actifs %>% st_transform(4326)) %>% addProviderTiles(providers$Stamen.Ton
 
 
 ### Gridded Map
+
 `mapview` and `leaflet` enable the use and styling of sf polygons. We may for example reuse the grid built previously to show the share of managers in Seine-Maritime.
+
 Default choropleth can be obtained with just three arguments with `mapview`. 
+
+
 ```{r}
 mapview(grid,map.types = "Stamen.TonerLite",zcol="pcad")
 ```
@@ -680,7 +691,9 @@ leaflet(grid  %>% st_transform(4326)) %>% addProviderTiles(providers$Stamen.Tone
 
 ### Projection
 
-`leaflet` enables to use other projections than the web-mercator projection for webmaps. You may deal with tiles built with another projection system such as Lambert 93 by defining a custom leaflet crs (see gis.stackexchange [resolution-from-wmts-getcapacilities-scaledenomin](https://gis.stackexchange.com/questions/153640/proj4leaflet-create-crs-scales-resolution-from-wmts-getcapacilities-scaledenomin) and [mathematics-behind-converting-scale-to-resolution](https://gis.stackexchange.com/questions/153640/proj4leaflet-create-crs-scales-resolution-from-wmts-getcapacilities-scaledenomin) to deal with WMTS tiles). We use this approach here to deal with Hypsometric tints tiles (tiles colors which encode elevation) and the contour lines of chamois and ibex population area provided by the [french national office of hunting and wild animals](http://www.oncfs.gouv.fr/Cartographie-ru4/Le-portail-cartographique-de-donnees-ar291).
+`leaflet` enables to use other projections than the web-mercator projection for webmaps. You may deal with tiles built with another projection system such as Lambert 93 by defining a custom leaflet crs (see gis.stackexchange [resolution-from-wmts-getcapacilities-scaledenomin](https://gis.stackexchange.com/questions/153640/proj4leaflet-create-crs-scales-resolution-from-wmts-getcapacilities-scaledenomin) and [mathematics-behind-converting-scale-to-resolution](https://gis.stackexchange.com/questions/153640/proj4leaflet-create-crs-scales-resolution-from-wmts-getcapacilities-scaledenomin) to deal with WMTS tiles).
+
+We use this approach here to deal with Hypsometric tints tiles (tiles colors which encode elevation) and the contour lines of chamois and ibex population area provided by the [french national office of hunting and wild animals](http://www.oncfs.gouv.fr/Cartographie-ru4/Le-portail-cartographique-de-donnees-ar291).
 
 
 ```{r}
