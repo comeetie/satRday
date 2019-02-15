@@ -67,18 +67,18 @@ These packages are still widely used.
 
 * First release:  October 20, 2016  
 
-* `sp`, `rgeos` and `rgdal` functionnalities in one package. 
+* `sp`, `rgeos` and `rgdal` functionalities in one package. 
 
 * Easier data handling, simpler objects.
 
-* [Tidy data](http://vita.had.co.nz/papers/tidy-data.html): compatibility with the pipe synthax and `tidyverse` operators.
+* [Tidy data](http://vita.had.co.nz/papers/tidy-data.html): compatibility with the pipe syntax and `tidyverse` operators.
 
 * Main author and maintainer: Edzer Pebesma (also `sp` author)
 
 </br>
 **sf objects data structure:**
 
-<img src="img/sf.png" alt="format sf" width="800">
+<img src="img/sf.png" alt="format sf" width="100%">
 
 ## Using `sf` {.tabset}
 
@@ -170,7 +170,13 @@ plot(st_geometry(mtq_z), col="red", border="green", add=T)
 
 
 ### Count Points in Polygons  
+
 `st_sample()` creates a set of points contained in mtq. 
+
+```{r , echo = FALSE}
+set.seed(1) #To always display the same map.
+```
+
 ```{r, nm=TRUE}
 pts <- st_sample(x = mtq, size = 50)
 plot(st_geometry(mtq))
@@ -178,6 +184,7 @@ plot(pts, pch = 20, col = "red", add=TRUE, cex = 1)
 ```
 
 `st_interects()` creates a list of the points within each polygons.
+
 ```{r, nm=TRUE}
 inter <- st_intersects(mtq, pts)
 mtq$nbpts <- sapply(X = inter, FUN = length)
@@ -644,7 +651,7 @@ ggplot() +
   theme_minimal() +
   theme(panel.background = element_rect(fill = "azure",color=NA)) +
   labs(title = "Active population",
-       caption = "Insee, 2018\nKim & Tim, 2018",x="",y="")
+       caption = "Insee, 2018\nKim, Tim & Comeetie, 2019",x="",y="")
 ```
 
 Choropleth map
@@ -665,7 +672,7 @@ ggplot() +
   theme_minimal() +
   theme(panel.background = element_rect(fill = "azure",color=NA)) +
   labs(title = "Managers",
-       caption = "Insee, 2018\nKim & Tim, 2018",x="",y="")
+       caption = "Insee, 2018\nKim, Tim & Comeetie, 2019",x="",y="")
 ```
 
 ### `tmap`
@@ -689,7 +696,7 @@ tm_shape(dep, bbox = st_bbox(sm)) +
              title.size = "Active Population") +
   tm_compass(type = "arrow", position = c("right", "top")) +
   tm_scale_bar(position = c("right", "bottom"), breaks = c(0,5,10)) + 
-  tm_credits("Insee & SIRENE, 2018
+  tm_credits("Insee, 2018
 Kim, Tim & Comeetie, 2019", position = c("left", "bottom")) +
   tm_layout(title = "Workforce in Seine-Maritime")
 
@@ -716,7 +723,7 @@ tm_shape(dep, bbox = st_bbox(sm)) +
               palette=cols, title = "Share of Managers") +
   tm_compass(type = "arrow", position = c("right", "top")) +
   tm_scale_bar(position = c("right", "bottom"), breaks = c(0,5,10)) + 
-  tm_credits("Insee & SIRENE, 2018
+  tm_credits("Insee, 2018
 Kim, Tim & Comeetie, 2019", position = c("left", "bottom")) +
   tm_layout(title = "Managers in Seine-Maritime")
 
@@ -830,7 +837,9 @@ leaflet(options = leafletOptions(worldCopyJump = F, crs = epsg2154)) %>%
 
 # <small> reproducibility </small> {.tabset}
 
-Always share your R and packages configuration !
+Presentation made with `rmdformats` package.
+
+Always share your R and packages configuration!
 
 ```{r}
 sessionInfo()
