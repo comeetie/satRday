@@ -1,5 +1,5 @@
 ---
-title: "**Spatial data and cartography with R**"
+title: "**Spatial Data and Cartography with R**"
 author: "Kim A. Etienne C. Timothée G."
 date: "**SatRday Paris** February 2019"
 output:
@@ -9,6 +9,8 @@ output:
     lightbox: false
     gallery: false
     selfcontained: true
+editor_options: 
+  chunk_output_type: console
 ---
 
 
@@ -45,7 +47,7 @@ knit_hooks$set(sm = function(before, options, envir){
 })
 
 #Install the github version for date and author
-#devtools::install_github("juba/rmdformats")
+#remotes::install_github("juba/rmdformats")
 ```
 
 # The R Spatial Ecosystem {.tabset}

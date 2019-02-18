@@ -3,13 +3,10 @@ knitr
 rmdformats
 sf
 dplyr
-bindrcpp
 cartography
 cartogram
 SpatialPosition
-sp
-raster
 ggplot2
+tmap
 mapview
 leaflet
-tmap

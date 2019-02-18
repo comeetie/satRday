@@ -1,5 +1,5 @@
 ---
-title: "Let's Practice Spatial data and cartography with R"
+title: "Let's Practice Spatial Data and Cartography with R"
 author: "Kim A. Etienne C. Timothée G."
 date: "**SatRday Paris** February 2019"
 output:
@@ -43,7 +43,7 @@ knit_hooks$set(sm = function(before, options, envir){
 })
 
 # boxes custom
-#devtools::install_github("koncina/unilur")
+#remotes::install_github("koncina/unilur")
 knitr::opts_template$set(alert = list(box.title = "Watch out!",
                                       box.body = list(fill = "#ffe0d9", colour = "black"),
                                       box.header = list(fill = "#FFAD99", colour = "black"),
