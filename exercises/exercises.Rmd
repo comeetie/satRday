@@ -69,6 +69,13 @@ knitr::opts_template$set(clues = list(box.title = "Clues",
 The main dataset used in this tutorial is about the **geolocalisation of french restaurants** in Paris. Data is extracted from an official register called [**SIRENE**](https://www.data.gouv.fr/fr/datasets/base-sirene-des-entreprises-et-de-leurs-etablissements-siren-siret/) (Computer system for the business and establishment register) managed by the French National Institute of Statistics and Economic Studies ([Insee](https://www.insee.fr/en/accueil)) and [geolocated](http://data.cquest.org/geo_sirene/last/) by [Etalab](https://www.etalab.gouv.fr/) (French task force for Open Data). This register records the civil status of all companies and their establishments (including restaurants).
 SIRENE has the advantages of being rigorous and exhaustive on the French territory.
 
+```{r, eval=FALSE}
+# download the dataset
+download.file("https://github.com/comeetie/satRday/blob/master/exercises/data.zip?raw=true", 
+              destfile = "data.zip")
+# unzip
+unzip("data.zip",exdir=".") 
+```
 
 
 # Exercise 1 : Manipulate sf objects and associated data.frames
