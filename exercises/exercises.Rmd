@@ -434,7 +434,7 @@ For example, you can use the `map.types`, `col.regions`, `label`, `color`, `lege
 library(mapview)
 library(sf)
 
-sir_75 <- readRDS("data/sir_75.rds")
+sir_75 <- st_read("data/sir_75.shp")
 mapview(sir_75, map.types = "OpenStreetMap",
         col.regions = "#940000",
         label = sir_75$L1_NORM,
