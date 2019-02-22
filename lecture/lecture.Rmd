@@ -218,7 +218,7 @@ plot(pts, pch = 20, col = "red", add=TRUE, cex = 1)
 # Maps with R  {.tabset}
 
 
-## Overview
+## Overview {.tabset}
 
 Several solutions are available:
 
@@ -229,6 +229,12 @@ Several solutions are available:
 - `mapview`, `leaflet` and `mapdeck` for interactive webmaps.
 
 Here we will focus on `cartography` and do small examples with `ggplot2`, `tmap`, `leaflet` and `mapview`.
+
+
+### Light Introduction to Graphical Semiology
+
+<img src="img/lightsemio.png" alt="Light Semiology" width="100%">
+
 
 
 ### Data Preparation
@@ -266,6 +272,7 @@ head(sm)
 pref = sm %>% filter(LIBELLE %in% c("Rouen","Le Havre","Dieppe"))
 ```
 
+`osmdata` allows to extract features from the free and source OpenStreetMap database.  
 
 ```{r, eval=FALSE,cache=TRUE}
 library(osmdata)

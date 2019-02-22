@@ -10,3 +10,4 @@ ggplot2
 tmap
 mapview
 leaflet
+bindrcpp
