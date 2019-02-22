@@ -11,3 +11,5 @@ tmap
 mapview
 leaflet
 bindrcpp
+sp
+raster

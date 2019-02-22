@@ -272,7 +272,7 @@ head(sm)
 pref = sm %>% filter(LIBELLE %in% c("Rouen","Le Havre","Dieppe"))
 ```
 
-`osmdata` allows to extract features from the free and source OpenStreetMap database.  
+`osmdata` allows to extract features from the free and open-source OpenStreetMap database.  
 
 ```{r, eval=FALSE,cache=TRUE}
 library(osmdata)
@@ -748,7 +748,7 @@ For proportional symbols both `leaflet` and `mapview` lack a proper way to build
 
 Both librairies are quite similar with some advantage for `mapview` (e.g the possibility to render to canvas for bigger datasets) and some other for `leaflet` (e.g using a customized projection different from web-mercator). 
 
-Two other packages `mapdeck` and `leafgl` deserve attention since they enable mapdrawing in webgl and therefore can be used with large datasets. They are not introduced here but keep thme in minds if needed.
+Two other packages `mapdeck` and `leafgl` deserve attention since they enable mapdrawing in webgl and therefore can be used with large datasets. They are not introduced here but keep them in mind if needed.
 
 
 ```{r, cache=TRUE}
