@@ -746,7 +746,10 @@ These interactive maps, as appealing as they seem to be, are not really suitable
 
 For proportional symbols both `leaflet` and `mapview` lack a proper way to build legends. Nonetheless, they can be really useful for exploratory data analysis.
 
-Both librairies are quite similar with some advantage for `mapview` (e.g the possibility to render to canvas for bigger datasets) and some other for `leaflet` (e.g using a customized projection different from web-meractor)
+Both librairies are quite similar with some advantage for `mapview` (e.g the possibility to render to canvas for bigger datasets) and some other for `leaflet` (e.g using a customized projection different from web-mercator). 
+
+Two other packages `mapdeck` and `leafgl` deserve attention since they enable mapdrawing in webgl and therefore can be used with large datasets. They are not introduced here but keep thme in minds if needed.
+
 
 ```{r, cache=TRUE}
 library(mapview)
@@ -817,9 +820,6 @@ epsg2154 <- leafletCRS(crsClass = "L.Proj.CRS", code = "EPSG:2154",
                        origin= c(-357823.2365,7230727.3772)
 )
 
-tile_ortho <- "http://tiles.craig.fr/ortho/service?service=WMTS&request=GetTile&version=1.0.0&
-layer=ortho_2016&style=normal&tilematrixset=lambert93&format=image%2Fjpeg&tilematrix={z}
-&tilerow={y}&tilecol={x}"
 
 tile_mnt <- "http://tiles.craig.fr/mnt/service?service=WMTS&request=GetTile&version=1.0.0&
 layer=relief&style=default&tilematrixset=lambert93&format=image%2Fpng&tilematrix={z}&
@@ -834,7 +834,6 @@ bouq = read_sf("./data/BOQ_2017_massif_uni/BOQ_2017_massif_uni_L93.shp")
 cha = read_sf("./data/CHA_2017_massif_uni/CHA_2017_massif_uni_L93.shp")
 
 leaflet(options = leafletOptions(worldCopyJump = F, crs = epsg2154)) %>%
-  # addTiles(urlTemplate = tile_ortho,attribution = tile_attrib) %>% 
   addTiles(urlTemplate = tile_mnt,attribution = tile_attrib) %>% 
   addPolygons(data = bouq %>% st_transform(4326), fillColor = '#50162D',color = '#772A7F',
               fillOpacity = 0.05,opacity = 1, weight = 2.5, dashArray = "3") %>% 
