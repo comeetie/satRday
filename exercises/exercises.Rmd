@@ -496,28 +496,27 @@ Use the following code to clean the results and project them in Lambert93.
 
 This code: 
 
+* removes the duplicated geometries thanks to `osmdata::unique_osmdata` (see the documentation for details)
+* projets in Lambert 93
 * keeps the *name* attribute only
-* computes the centroids for the restaurants stored as polygons or multi-polygons 
-* cleans the points by removing the ones that were extracted from exploding the polygons.
+* computes the centroids for the restaurants stored as polygons 
 
 Eventually, the restaurants outside Paris are removed.
 ```
 
 ```{r, nm=TRUE, eval=TRUE, echo=TRUE}
 
-rmpoly <- restaurants$osm_multipolygons %>% 
-  st_transform(2154) %>% 
-  select(name) %>% st_centroid()
+restaurants_dedup <- unique_osmdata(restaurants)
 
-rpoint <- restaurants$osm_points %>% 
+rpoint <- restaurants_dedup$osm_points %>% 
   filter(!is.na(amenity)) %>% 
   st_transform(2154) %>% select(name) 
 
-rpoly  <- restaurants$osm_polygons %>% 
+rpoly  <- restaurants_dedup$osm_polygons %>% 
   st_transform(2154) %>% 
   select(name)  %>% st_centroid()
 
-restaurants_osm <- rbind(rmpoly,rpoly,rpoint)   
+restaurants_osm <- rbind(rpoly,rpoint)   
 
 osm_75 <- st_intersection(restaurants_osm , iris_75 %>% st_geometry() %>% st_union())
 ```
